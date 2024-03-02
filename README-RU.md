@@ -81,23 +81,23 @@ private_key_file = /path/to/private.key
 
 ```yaml
 # Основной домен используемых для панели
-domain: example.com
+marzban_domain: example.com
 
 # Сетевое имя под которые будем сообщать при обращен
-sni: "vk.com"
+marzban_sni: "vk.com"
 
 # Ваш адрес электронной почты
 email: foo@bar
 
 # Часовой пояс
-timezone: "Europe/Moscow"
+common_timezone: "Europe/Moscow"
 ```
 
 * `./group_vars/marzban_main/main.yml` - общие переменные для каждого из узлов - главные узлы с основной панелью и узлы-миньоны, используемые для расширения.
 
 ```yaml
 # firewall
-open_ports:
+common_open_ports:
   - "80"
   - "443"
 ```
