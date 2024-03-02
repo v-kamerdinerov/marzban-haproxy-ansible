@@ -9,7 +9,7 @@
     rule: allow
     port: "{{ item }}"
   with_items:
-    - "{{ open_ports }}"
+    - "{{ common_open_ports }}"
 
 - name: "Common | {{ role | upper() }} | UFW | Limit ssh connections"
   community.general.ufw:

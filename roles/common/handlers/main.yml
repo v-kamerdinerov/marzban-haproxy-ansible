@@ -8,7 +8,9 @@
 - name: Restart machine
   become: true
   reboot:
-    reboot_timeout: "{{ reboot_timeout }}"
+    reboot_timeout: "{{ common_reboot_timeout }}"
 
 - name: Run depmod
   command: depmod
+  register: depmode_output
+  changed_when: depmode_output.rc != 0

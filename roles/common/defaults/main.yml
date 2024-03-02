@@ -9,31 +9,31 @@ common_packages:
 
 
 # Timezone for server
-timezone: "Europe/Moscow"
+common_timezone: "Europe/Moscow"
 
 # Timeout for rebooting
-reboot_timeout: 300
+common_reboot_timeout: 300
 
 # System limit user
-system_domain: "*"
+common_system_domain: "*"
 
 # System limits
 limits:
-  - { domain: "{{ system_domain }}", type: '-', limit_item: 'core', value: "unlimited" }
-  - { domain: "{{ system_domain }}", type: '-', limit_item: 'data', value: "unlimited" }
-  - { domain: "{{ system_domain }}", type: '-', limit_item: 'fsize', value: "unlimited" }
-  - { domain: "{{ system_domain }}", type: '-', limit_item: 'nofile', value: "1048576" }
-  - { domain: "{{ system_domain }}", type: '-', limit_item: 'memlock', value: "unlimited" }
-  - { domain: "{{ system_domain }}", type: '-', limit_item: 'rss', value: "unlimited" }
-  - { domain: "{{ system_domain }}", type: '-', limit_item: 'nproc', value: "unlimited" }
-  - { domain: "{{ system_domain }}", type: '-', limit_item: 'msgqueue', value: "unlimited" }
-  - { domain: "{{ system_domain }}", type: 'hard', limit_item: 'stack', value: "65536" }
-  - { domain: "{{ system_domain }}", type: 'soft', limit_item: 'stack', value: "32768" }
-  - { domain: "{{ system_domain }}", type: '-', limit_item: 'cpu', value: "unlimited" }
-  - { domain: "{{ system_domain }}", type: '-', limit_item: 'locks', value: "unlimited" }
-  - { domain: "{{ system_domain }}", type: '-', limit_item: 'as', value: "unlimited" }
+  - { domain: "{{ common_system_domain }}", type: '-', limit_item: 'core', value: "unlimited" }
+  - { domain: "{{ common_system_domain }}", type: '-', limit_item: 'data', value: "unlimited" }
+  - { domain: "{{ common_system_domain }}", type: '-', limit_item: 'fsize', value: "unlimited" }
+  - { domain: "{{ common_system_domain }}", type: '-', limit_item: 'nofile', value: "1048576" }
+  - { domain: "{{ common_system_domain }}", type: '-', limit_item: 'memlock', value: "unlimited" }
+  - { domain: "{{ common_system_domain }}", type: '-', limit_item: 'rss', value: "unlimited" }
+  - { domain: "{{ common_system_domain }}", type: '-', limit_item: 'nproc', value: "unlimited" }
+  - { domain: "{{ common_system_domain }}", type: '-', limit_item: 'msgqueue', value: "unlimited" }
+  - { domain: "{{ common_system_domain }}", type: 'hard', limit_item: 'stack', value: "65536" }
+  - { domain: "{{ common_system_domain }}", type: 'soft', limit_item: 'stack', value: "32768" }
+  - { domain: "{{ common_system_domain }}", type: '-', limit_item: 'cpu', value: "unlimited" }
+  - { domain: "{{ common_system_domain }}", type: '-', limit_item: 'locks', value: "unlimited" }
+  - { domain: "{{ common_system_domain }}", type: '-', limit_item: 'as', value: "unlimited" }
 
-sysctl_roles_tuning_overrides:
+common_sysctl_roles_tuning_overrides:
 # Maximum open file descriptors
   - name: fs.file-max
     value: "1000000"
@@ -114,22 +114,22 @@ sysctl_roles_tuning_overrides:
     value: "bbr"
 
 # CPU levels
-levels:
+common_levels:
   - { level: 1, features: 'lm|cmov|cx8|fpu|fxsr|mmx|syscall|sse2' }
   - { level: 2, features: 'cx16|lahf|popcnt|sse4_1|sse4_2|ssse3' }
   - { level: 3, features: 'avx|avx2|bmi1|bmi2|f16c|fma|abm|movbe|xsave' }
   - { level: 4, features: 'avx512f|avx512bw|avx512cd|avx512dq|avx512vl' }
 
 # xanmod repo configuration
-xanmod_apt_gpg_key: "https://dl.xanmod.org/archive.key"
-xanmod_apt_ansible_distribution: "{{ ansible_distribution }}"
-xanmod_apt_filename: "xanmod-kernel"
-xanmod_gpt_key_path: "/etc/apt/trusted.gpg"
-xanmod_repo_url: "http://deb.xanmod.org"
-xanmod_apt_release_channel: "main"
-xanmod_apt_repository: "deb [signed-by={{ xanmod_gpt_key_path }}] {{ xanmod_repo_url }} releases {{ xanmod_apt_release_channel }}"
+common_xanmod_apt_gpg_key: "https://dl.xanmod.org/archive.key"
+common_xanmod_apt_ansible_distribution: "{{ ansible_distribution }}"
+common_xanmod_apt_filename: "xanmod-kernel"
+common_xanmod_gpt_key_path: "/etc/apt/trusted.gpg"
+common_xanmod_repo_url: "http://deb.xanmod.org"
+common_xanmod_apt_release_channel: "main"
+common_xanmod_apt_repository: "deb [signed-by={{ common_xanmod_gpt_key_path }}] {{ common_xanmod_repo_url }} releases {{ common_xanmod_apt_release_channel }}"
 
-xanmod_package_name: "linux-xanmod-x64v{{ current_level }}"
+common_xanmod_package_name: "linux-xanmod-x64v{{ current_level }}"
 
 # Default for firewall
-open_ports: ""
+common_open_ports: ""

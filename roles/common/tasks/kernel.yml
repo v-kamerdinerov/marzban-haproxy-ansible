@@ -15,7 +15,7 @@
   set_fact:
     current_level: "{{ item.level }}"
   when: "cpu_info.stdout | regex_search(item.features)"
-  loop: "{{ levels }}"
+  loop: "{{ common_levels }}"
 
 - name: "Common | Kernel | Show CPU level"
   debug:
@@ -43,15 +43,15 @@
 
 - name: "Common | Kernel | Add Xanmod apt key"
   apt_key:
-    url: "{{ xanmod_apt_gpg_key }}"
+    url: "{{ common_xanmod_apt_gpg_key }}"
     state: present
 
 
 - name: "Common | Kernel | Add Xanmod repository"
   apt_repository:
-    repo: "{{ xanmod_apt_repository }}"
+    repo: "{{ common_xanmod_apt_repository }}"
     state: present
-    filename: "{{ xanmod_apt_filename }}"
+    filename: "{{ common_xanmod_apt_filename }}"
     update_cache: true
 
 - name: "Common | Kernel | Install Xanmod kernel"

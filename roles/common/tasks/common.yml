@@ -1,8 +1,8 @@
 ---
 
-- name: "Common | Set timezone to {{ timezone }}"
+- name: "Common | Set timezone to {{ common_timezone }}"
   community.general.timezone:
-    name: "{{ timezone }}"
+    name: "{{ common_timezone }}"
 
 
 - name: "Common | Set hostname to hosts"

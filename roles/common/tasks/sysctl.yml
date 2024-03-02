@@ -3,8 +3,8 @@
 - name: "Common | Sysctl | Override sysctl params with host/group ones"
   set_fact:
     sysctl_tuning: "{{ [item] + sysctl_tuning | d({}) | rejectattr('name', 'equalto', item.name) | list }}"
-  with_items: "{{ sysctl_roles_tuning_overrides }}"
-  when: sysctl_roles_tuning_overrides is defined
+  with_items: "{{ common_sysctl_roles_tuning_overrides }}"
+  when: common_sysctl_roles_tuning_overrides is defined
   tags: sysctl
 
 
