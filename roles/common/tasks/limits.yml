@@ -7,4 +7,4 @@
     limit_item: "{{ item.limit_item }}"
     value: "{{ item.value }}"
   become: true
-  with_items: "{{ limits }}"
+  with_items: "{{ common_limits }}"

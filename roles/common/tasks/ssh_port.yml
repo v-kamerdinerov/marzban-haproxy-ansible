@@ -1,5 +1,4 @@
 ---
-
 # ansible_port can change throughout this role, keep a copy around
 - name: "Common | SSH | Set configured port fact"
   ansible.builtin.set_fact:
@@ -58,6 +57,7 @@
   when: ssh_port_set is undefined
 
 - name: "Common | SSH | Change the ssh port"
+  when: ansible_port == '22'
   block:
     - name: "Common | SSH | Confirm host connection works"
       ansible.builtin.ping:
@@ -109,7 +109,6 @@
     # By calling flush_handlers, we make sure the handler is run *right now*
     - name: "Common | SSH | Ensure SSH is reloaded if need be"
       ansible.builtin.meta: flush_handlers
-  when: ansible_port == '22'
 
 # We're done, make sure ansible_port is set properly so that any tasks
 # after this use the right ansible_port.

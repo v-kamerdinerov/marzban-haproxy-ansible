@@ -18,7 +18,7 @@ common_reboot_timeout: 300
 common_system_domain: "*"
 
 # System limits
-limits:
+common_limits:
   - { domain: "{{ common_system_domain }}", type: '-', limit_item: 'core', value: "unlimited" }
   - { domain: "{{ common_system_domain }}", type: '-', limit_item: 'data', value: "unlimited" }
   - { domain: "{{ common_system_domain }}", type: '-', limit_item: 'fsize', value: "unlimited" }

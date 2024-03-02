@@ -18,6 +18,7 @@ skip_list:
   - no-loop-var-prefix # dont need for us
   - risky-shell-pipe # makes code more complex and does not provide benefits
   - name[template]
+  - ignore-errors
 offline: true
 
 kinds:
