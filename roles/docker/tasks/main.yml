@@ -37,7 +37,7 @@
     mode: '0644'
     force: false
     checksum: "{{ docker_apt_gpg_key_checksum | default(omit) }}"
-  ignore_errors: "{{ docker_apt_ignore_key_error }}"
+  ignore_errors: "{{ docker_apt_ignore_key_error | bool }}"
   when: docker_add_repo | bool
 
 - name: "Docker | Add Docker repository."
