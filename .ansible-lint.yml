@@ -1,0 +1,24 @@
+#####
+# Docs and examples: https://github.com/ansible/ansible-lint/blob/main/.ansible-lint
+#####
+
+exclude_paths:
+- .cache/
+- .github/
+
+
+loop_var_prefix: "{role}_"
+use_default_rules: true
+
+skip_list:
+  - experimental  # all rules tagged as experimental
+  - fqcn[action-core]  # Use FQCN for builtin actions.
+  - meta-no-info # dont need for us
+  - meta-incorrect # dont need for us
+  - no-loop-var-prefix # dont need for us
+  - risky-shell-pipe # makes code more complex and does not provide benefits
+  - name[template]
+offline: true
+
+kinds:
+  - tasks: "**/tasks/*.yml"
