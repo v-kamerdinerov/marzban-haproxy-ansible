@@ -12,7 +12,3 @@
       import_role:
         name: docker
       tags: docker
-    - name: "Import marzban role"
-      import_role:
-        name: marzban
-      tags: marzban
