@@ -1,0 +1,67 @@
+---
+- name: "Common | Kernel | Gather instance facts"
+  setup: {}
+
+- name: "Common | Kernel | Check cpu info"
+  command: cat /proc/cpuinfo
+  register: cpu_info
+  changed_when: cpu_info.rc != 0
+
+- name: "Common | Kernel | Show cpu info"
+  debug:
+    msg: "{{ cpu_info.stdout }}"
+
+- name: "Common | Kernel | Set current level cpu"
+  set_fact:
+    current_level: "{{ item.level }}"
+  when: "cpu_info.stdout | regex_search(item.features)"
+  loop: "{{ levels }}"
+
+- name: "Common | Kernel | Show CPU level"
+  debug:
+    msg: "CPU поддерживается x86-64-v{{ current_level }}"
+
+- name: "Common | Kernel | Ensure dependencies are installed"
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+    state: present
+
+- name: "Common | Kernel | Ensure additional dependencies are installed (on Ubuntu < 20.04 and any other systems)"
+  apt:
+    name: gnupg2
+    state: present
+  when: ansible_distribution != 'Ubuntu' or ansible_distribution_version is version('20.04', '<')
+
+- name: "Common | Kernel | Ensure additional dependencies are installed (on Ubuntu >= 20.04)"
+  apt:
+    name: gnupg
+    state: present
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version is version('20.04', '>=')
+
+
+- name: "Common | Kernel | Add Xanmod apt key"
+  apt_key:
+    url: "{{ xanmod_apt_gpg_key }}"
+    state: present
+
+
+- name: "Common | Kernel | Add Xanmod repository"
+  apt_repository:
+    repo: "{{ xanmod_apt_repository }}"
+    state: present
+    filename: "{{ xanmod_apt_filename }}"
+    update_cache: true
+
+- name: "Common | Kernel | Install Xanmod kernel"
+  package:
+    name: "linux-xanmod-x64v{{ current_level }}"
+    state: present
+  notify: Restart machine
+  retries: 6
+  delay: 6
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Flush handlers
+  meta: flush_handlers

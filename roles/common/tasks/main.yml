@@ -1,0 +1,29 @@
+---
+- name: Common
+  include_tasks: common.yml
+  tags: common
+#  loop: "{{ groups['marzban'] }}"
+#  loop_control:
+#    loop_var: host
+- name: Limits
+  include_tasks: limits.yml
+  tags: limits
+- name: Install
+  include_tasks: install.yml
+  tags: install
+- name: SSH
+  include_tasks: ssh_port.yml
+  tags: ssh
+- name: Kernel
+  include_tasks: kernel.yml
+  tags: kernel
+  when: xanmod_kernel
+- name: Sysctl
+  include_tasks: sysctl.yml
+  tags: sysctl
+- name: Firewall
+  include_tasks: ufw.yml
+  tags: firewall
+  loop: "{{ marzban_roles }}"
+  loop_control:
+    loop_var: role

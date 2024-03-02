@@ -1,0 +1,132 @@
+---
+- name: "Docker | Gather instance facts"
+  setup: {}
+
+- name: "Docker | Ensure old versions of Docker are not installed."
+  package:
+    name:
+      - docker
+      - docker.io
+      - docker-engine
+    state: absent
+
+- name: "Docker | Ensure dependencies are installed."
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+    state: present
+  when: docker_add_repo | bool
+
+- name: "Docker | Ensure additional dependencies are installed (on Ubuntu < 20.04 and any other systems)."
+  apt:
+    name: gnupg2
+    state: present
+  when: ansible_distribution != 'Ubuntu' or ansible_distribution_version is version('20.04', '<')
+
+- name: "Docker | Ensure additional dependencies are installed (on Ubuntu >= 20.04)."
+  apt:
+    name: gnupg
+    state: present
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version is version('20.04', '>=')
+
+- name: "Docker | Add Docker apt key."
+  ansible.builtin.get_url:
+    url: "{{ docker_apt_gpg_key }}"
+    dest: /etc/apt/trusted.gpg.d/docker.asc
+    mode: '0644'
+    force: false
+    checksum: "{{ docker_apt_gpg_key_checksum | default(omit) }}"
+  ignore_errors: "{{ docker_apt_ignore_key_error }}"
+  when: docker_add_repo | bool
+
+- name: "Docker | Add Docker repository."
+  apt_repository:
+    repo: "{{ docker_apt_repository }}"
+    state: present
+    filename: "{{ docker_apt_filename }}"
+    update_cache: true
+  when: docker_add_repo | bool
+
+- name: "Docker | Install Docker packages."
+  package:
+    name: "{{ docker_packages }}"
+    state: "{{ docker_packages_state }}"
+  notify: Restart docker
+  ignore_errors: "{{ ansible_check_mode }}"
+  when: "ansible_version.full is version_compare('2.12', '<') or ansible_os_family not in ['RedHat', 'Debian']"
+
+- name: "Docker | Install Docker packages (with downgrade option)."
+  package:
+    name: "{{ docker_packages }}"
+    state: "{{ docker_packages_state }}"
+    allow_downgrade: true
+  notify: Restart docker
+  ignore_errors: "{{ ansible_check_mode }}"
+  when: "ansible_version.full is version_compare('2.12', '>=') and ansible_os_family in ['RedHat', 'Debian']"
+
+- name: "Docker | Install docker-compose plugin."
+  package:
+    name: "{{ docker_compose_package }}"
+    state: "{{ docker_compose_package_state }}"
+  notify: Restart docker
+  ignore_errors: "{{ ansible_check_mode }}"
+  when: "docker_install_compose_plugin and (ansible_version.full is version_compare('2.12', '<') or ansible_os_family not in ['RedHat', 'Debian'])"
+
+- name: "Docker | Install docker-compose-plugin (with downgrade option)."
+  package:
+    name: "{{ docker_compose_package }}"
+    state: "{{ docker_compose_package_state }}"
+    allow_downgrade: true
+  notify: Restart docker
+  ignore_errors: "{{ ansible_check_mode }}"
+  when: "docker_install_compose_plugin and ansible_version.full is version_compare('2.12', '>=') and ansible_os_family in ['RedHat', 'Debian']"
+
+- name: "Docker | Ensure /etc/docker/ directory exists."
+  file:
+    path: /etc/docker
+    state: directory
+    mode: 0755
+  when: docker_daemon_options.keys() | length > 0
+
+- name: "Docker | Configure Docker daemon options."
+  copy:
+    content: "{{ docker_daemon_options | to_nice_json }}"
+    dest: /etc/docker/daemon.json
+    mode: 0644
+  when: docker_daemon_options.keys() | length > 0
+  notify: Restart docker
+
+- name: "Docker | Ensure Docker is started and enabled at boot."
+  service:
+    name: docker
+    state: "{{ docker_service_state }}"
+    enabled: "{{ docker_service_enabled }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+  when: docker_service_manage | bool
+
+- name: "Docker | Ensure handlers are notified now to avoid firewall conflicts."
+  meta: flush_handlers
+
+- name: "Docker | Install docker-compose"
+  include_tasks: docker-compose.yml
+  when: docker_install_compose | bool
+
+- name: "Docker | Get docker group info using getent."
+  getent:
+    database: group
+    key: docker
+    split: ':'
+  when: docker_users | length > 0
+
+- name: "Docker | Check if there are any users to add to the docker group."
+  set_fact:
+    at_least_one_user_to_modify: true
+  when:
+    - docker_users | length > 0
+    - item not in ansible_facts.getent_group["docker"][2]
+  with_items: "{{ docker_users }}"
+
+- name: "Docker | Add user to docker group"
+  include_tasks: docker-users.yml
+  when: at_least_one_user_to_modify is defined

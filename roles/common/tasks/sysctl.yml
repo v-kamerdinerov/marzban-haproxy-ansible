@@ -1,0 +1,37 @@
+---
+
+- name: "Common | Sysctl | Override sysctl params with host/group ones"
+  set_fact:
+    sysctl_tuning: "{{ [item] + sysctl_tuning | d({}) | rejectattr('name', 'equalto', item.name) | list }}"
+  with_items: "{{ sysctl_roles_tuning_overrides }}"
+  when: sysctl_roles_tuning_overrides is defined
+  tags: sysctl
+
+
+- name: "Common | Sysctl | Create node sysctl"
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    sysctl_file: /etc/sysctl.d/50-marzban.conf
+    sysctl_set: true
+    ignoreerrors: "{{ item.ignoreerrors | default('no') }}"
+    reload: true
+  notify: Run depmod
+  with_items:
+    - "{{ sysctl_tuning }}"
+  tags: sysctl
+  loop_control:
+    label: "{{ item.name }} = {{ item.value }}"
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: "Common | Sysctl | Check tcp_bbr info"
+  command: modinfo tcp_bbr
+  register: modinfo
+  changed_when: modinfo.rc != 0
+
+- name: "Common | Sysctl | Show modinfo info"
+  debug:
+    msg: "{{ modinfo.stdout }}"

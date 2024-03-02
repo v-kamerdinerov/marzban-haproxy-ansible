@@ -1,0 +1,7 @@
+---
+
+- name: "Common | Install | Install additional packages"
+  package:
+    name: "{{ common_packages }}"
+    state: "present"
+  ignore_errors: "{{ ansible_check_mode }}"

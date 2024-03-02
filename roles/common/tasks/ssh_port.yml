@@ -1,0 +1,124 @@
+---
+
+# ansible_port can change throughout this role, keep a copy around
+- name: "Common | SSH | Set configured port fact"
+  ansible.builtin.set_fact:
+    change_sshd_port_configured_port: "{{ ansible_port }}"
+
+# Check if we're able to reach the host on the desired port.
+- name: "Common | SSH | Check if we're using the inventory-provided SSH port"
+  ansible.builtin.wait_for:
+    port: "{{ ansible_port }}"
+    state: "started"
+    host: "{{ ansible_host }}"
+    connect_timeout: "5"
+    timeout: "10"
+  become: false
+  delegate_to: "localhost"
+  ignore_errors: "true"
+  register: change_sshd_port_configured_ssh
+
+# If {{ ansible_port }} is reachable, we don't need to do anything special
+- name: "Common | SSH | SSH port is configured properly"
+  ansible.builtin.debug:
+    msg: "SSH port is configured properly"
+  when: change_sshd_port_configured_ssh is defined and
+        change_sshd_port_configured_ssh.state is defined and
+        change_sshd_port_configured_ssh.state == "started"
+  register: ssh_port_set
+
+# From localhost, check if we're able to reach port 22
+- name: "Common | SSH | Check if we're using the default SSH port"
+  ansible.builtin.wait_for:
+    port: "22"
+    state: "started"
+    host: "{{ ansible_host }}"
+    connect_timeout: "5"
+    timeout: "10"
+  become: false
+  delegate_to: "localhost"
+  ignore_errors: "true"
+  register: change_sshd_port_default_ssh
+  when: change_sshd_port_configured_ssh is defined and
+        change_sshd_port_configured_ssh.state is undefined
+
+# If reachable, continue the following tasks with this port
+- name: "Common | SSH | Set inventory ansible_port to default"
+  ansible.builtin.set_fact:
+    ansible_port: "22"
+  when: change_sshd_port_default_ssh is defined and
+        "state" in change_sshd_port_default_ssh and
+        change_sshd_port_default_ssh.state == "started"
+  register: ssh_port_set
+
+# If the SSH port is neither the default nor the configured, fail.
+- name: "Common | SSH | Fail if SSH port was not auto-detected (unknown)"
+  ansible.builtin.fail:
+    msg: "The SSH port is neither 22 or {{ ansible_port }}."
+  when: ssh_port_set is undefined
+
+- name: "Common | SSH | Change the ssh port"
+  block:
+    - name: "Common | SSH | Confirm host connection works"
+      ansible.builtin.ping:
+
+    - name: "Common | SSH | Populate service facts"
+      ansible.builtin.service_facts:
+
+    - name: "Common | SSH | Set the firewall to allow the new SSH port"
+      become: true
+      ansible.posix.firewalld:
+        port: "{{ change_sshd_port_configured_port }}/tcp"
+        zone: public
+        permanent: true
+        state: enabled
+      notify: "restart firewalld"
+      vars:
+        change_sshd_port_firewalld_name: 'firewalld.service'
+      when:
+        - change_sshd_port_firewalld_name in ansible_facts.services
+        - ansible_facts.services['firewalld.service']['status'] == 'enabled'
+
+    - name: "Common | SSH | Set the ufw to allow the new SSH port"
+      become: true
+      community.general.ufw:
+        rule: allow
+        port: "{{ change_sshd_port_configured_port }}"
+        proto: tcp
+      vars:
+        change_sshd_port_ufw_service_name: 'ufw.service'
+      when:
+        - change_sshd_port_ufw_service_name in ansible_facts.services
+        - ansible_facts.services['ufw.service']['status'] == 'enabled'
+
+    - name: "Common | SSH | Setup alternate SSH port"
+      become: true
+      ansible.builtin.lineinfile:
+        dest: "/etc/ssh/sshd_config"
+        regexp: "^Port"
+        line: "Port {{ change_sshd_port_configured_port }}"
+      notify: "Restart sshd"
+
+    - name: "Common | SSH | Collect only selected facts"
+      ansible.builtin.setup:
+        filter:
+          - 'ansible_distribution'
+          - 'ansible_distribution_major_version'
+
+    # We notified "Restart sshd" if we modified the sshd config.
+    # By calling flush_handlers, we make sure the handler is run *right now*
+    - name: "Common | SSH | Ensure SSH is reloaded if need be"
+      ansible.builtin.meta: flush_handlers
+  when: ansible_port == '22'
+
+# We're done, make sure ansible_port is set properly so that any tasks
+# after this use the right ansible_port.
+- name: "Common | SSH | Ensure we use the configured SSH port for the remainder of the role"
+  ansible.builtin.set_fact:
+    ansible_port: "{{ change_sshd_port_configured_port }}"
+
+# Gather facts should be set to false when running this role since it will
+# fail if the Ansible SSH port is not set correctly.
+# We run setup to gather facts here once the SSH port is set up.
+- name: "Common | SSH | Run deferred setup to gather facts"
+  ansible.builtin.setup:

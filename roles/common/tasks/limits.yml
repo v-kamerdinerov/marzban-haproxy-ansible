@@ -1,0 +1,10 @@
+---
+
+- name: "Common | System limits | Set system limits"
+  community.general.pam_limits:
+    domain: "{{ item.domain }}"
+    limit_type: "{{ item.type }}"
+    limit_item: "{{ item.limit_item }}"
+    value: "{{ item.value }}"
+  become: true
+  with_items: "{{ limits }}"

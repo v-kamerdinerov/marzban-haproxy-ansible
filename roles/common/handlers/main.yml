@@ -1,0 +1,14 @@
+---
+- name: Restart sshd
+  become: true
+  service:
+    name: sshd
+    state: restarted
+
+- name: Restart machine
+  become: true
+  reboot:
+    reboot_timeout: "{{ reboot_timeout }}"
+
+- name: Run depmod
+  command: depmod

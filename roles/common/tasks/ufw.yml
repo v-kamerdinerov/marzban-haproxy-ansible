@@ -1,0 +1,23 @@
+---
+
+- name: "Common | {{ role | upper() }} | UFW | Reset all rules"
+  community.general.ufw:
+    state: reset
+
+- name: "Common | {{ role | upper() }} | UFW | Allow default web access ports"
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+  with_items:
+    - "{{ open_ports }}"
+
+- name: "Common | {{ role | upper() }} | UFW | Limit ssh connections"
+  community.general.ufw:
+    rule: limit
+    port: "{{ item }}"
+  with_items:
+    - "{{ change_sshd_port_configured_port }}"
+
+- name: "Common | {{ role | upper() }} | UFW | Enable firewall service"
+  community.general.ufw:
+    state: enabled
