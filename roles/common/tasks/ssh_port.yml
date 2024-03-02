@@ -14,7 +14,7 @@
     timeout: "10"
   become: false
   delegate_to: "localhost"
-  ignore_errors: "true"
+  ignore_errors: true
   register: change_sshd_port_configured_ssh
 
 # If {{ ansible_port }} is reachable, we don't need to do anything special
