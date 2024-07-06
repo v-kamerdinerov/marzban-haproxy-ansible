@@ -62,7 +62,7 @@ all:
         marzban_nodes:
           hosts:
             node1:
-              ansible_host: 66.77.44.33
+              ansible_host: 88.43.44.22
               ansible_port: 22
               marzban_roles:
                 - node
