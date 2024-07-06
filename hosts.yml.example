@@ -1,0 +1,12 @@
+---
+all:
+  children:
+    marzban:
+      children:
+        marzban_main:
+          hosts:
+            main:
+              ansible_host: 88.106.7.158
+              ansible_port: 22
+              marzban_roles:
+                - panel
