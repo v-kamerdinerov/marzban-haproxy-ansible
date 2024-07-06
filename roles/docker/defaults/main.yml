@@ -51,7 +51,7 @@ docker_users:
 
 # Docker daemon options as a dict
 docker_daemon_options:
-  storage-driver: "overlay2"
+#  storage-driver: "overlay2"
   log-opts:
     max-size: "500m"
     max-file: "2"
