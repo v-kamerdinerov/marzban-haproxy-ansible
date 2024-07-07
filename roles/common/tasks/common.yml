@@ -7,4 +7,4 @@
 
 - name: "Common | Set hostname to hosts"
   ansible.builtin.hostname:
-   name: "{{ inventory_hostname }}.{{ domain }}"
+   name: "{{ inventory_hostname }}.{{ marzban_domain }}.local"
