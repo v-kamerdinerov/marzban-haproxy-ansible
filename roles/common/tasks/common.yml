@@ -4,7 +4,15 @@
   community.general.timezone:
     name: "{{ common_timezone }}"
 
-
-- name: "Common | Set hostname to hosts"
+- name: "Common | Set hostname"
   ansible.builtin.hostname:
    name: "{{ inventory_hostname }}.{{ marzban_domain }}.local"
+  tags: hosts
+
+- name: "Common | Fix /etc/hosts removing the old hostname"
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: "^127.0.0.1"
+    state: present
+    line: "127.0.0.1 {{ inventory_hostname }}.{{ marzban_domain }}.local {{ ansible_hostname }}"
+  tags: hosts
