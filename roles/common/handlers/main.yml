@@ -18,3 +18,4 @@
 - name: Update ca-certificates
   become: true
   command: "{{ common_ca_certificates_handler }}"
+  changed_when: _ca_certificates_copied is changed
