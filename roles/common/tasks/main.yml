@@ -17,7 +17,7 @@
 - name: Kernel
   include_tasks: kernel.yml
   tags: kernel
-  when: xanmod_kernel
+  when: common_xanmod_kernel
 - name: Sysctl
   include_tasks: sysctl.yml
   tags: sysctl
