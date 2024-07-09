@@ -1,0 +1,14 @@
+---
+
+- name: "Common | Cert | Install trusted CA Certificates"
+  copy:
+    dest: "{{ common_ca_certificates_local_dir }}/{{ item.key }}.crt"
+    owner: root
+    group: root
+    mode: '0644'
+    backup: false
+    content: "{{ item.value }}"
+  loop: "{{ vault_ssl_certs | dict2items }}"
+  when: item.key.endswith('.cert')
+  register: _ca_certificates_copied
+  notify: Update ca-certificates

@@ -14,5 +14,5 @@
     path: /etc/hosts
     regexp: "^127.0.0.1"
     state: present
-    line: "127.0.0.1 {{ inventory_hostname }}.{{ marzban_domain }}.local {{ ansible_hostname }}"
+    line: "127.0.0.1 {{ inventory_hostname }}.{{ marzban_domain }}.local {{ marzban_domain }} {{ marzban_panel_uri }}"
   tags: hosts

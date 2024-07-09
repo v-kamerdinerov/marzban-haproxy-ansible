@@ -11,6 +11,9 @@
 - name: Install
   include_tasks: install.yml
   tags: install
+- name: Certificate
+  include_tasks: cert.yml
+  tags: certificate
 - name: SSH
   include_tasks: ssh_port.yml
   tags: ssh

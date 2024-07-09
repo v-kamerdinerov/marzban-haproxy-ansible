@@ -1,0 +1,3 @@
+---
+common_ca_certificates_handler: /usr/sbin/update-ca-certificates
+common_ca_certificates_local_dir: /usr/local/share/ca-certificates

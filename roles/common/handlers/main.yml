@@ -14,3 +14,7 @@
   command: depmod
   register: depmode_output
   changed_when: depmode_output.rc != 0
+
+- name: Update ca-certificates
+  become: true
+  command: "{{ common_ca_certificates_handler }}"
