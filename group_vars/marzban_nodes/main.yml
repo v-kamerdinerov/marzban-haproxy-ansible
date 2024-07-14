@@ -1,8 +1,7 @@
 ---
 
-# Порты которые нужно открыть на minion ноде (ssh уже включен в роль)
-common_open_ports:
-  - "62050"
-  - "62051"
-  - "80"
-  - "443"
+# Порты которые нужно открыть на minion(node) ноде (ssh уже включен в роль)
+common_open_ports: "{{ common_open_ports_additional + marzban_api_ports }}"
+
+common_open_ports_additional:
+  - "{{ marzban_vless_tcp_reality_port }}"
