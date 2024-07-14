@@ -13,13 +13,13 @@ use_default_rules: true
 skip_list:
   - experimental  # all rules tagged as experimental
   - fqcn[action-core]  # Use FQCN for builtin actions.
-  - meta-no-info # dont need for us
-  - meta-incorrect # dont need for us
-  - no-loop-var-prefix # dont need for us
+  - meta-no-info
+  - meta-incorrect
+  - no-loop-var-prefix
   - risky-shell-pipe # makes code more complex and does not provide benefits
   - name[template]
   - ignore-errors
-  - key-order[task]
+  - key-order[task] # for me name block when more readable
 offline: true
 
 kinds:
