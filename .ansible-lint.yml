@@ -19,6 +19,7 @@ skip_list:
   - risky-shell-pipe # makes code more complex and does not provide benefits
   - name[template]
   - ignore-errors
+  - key-order[task]
 offline: true
 
 kinds:
