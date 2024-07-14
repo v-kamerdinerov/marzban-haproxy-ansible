@@ -2,11 +2,10 @@
 
 common_packages:
   - "net-tools"
-  - "vnstat"
   - "curl"
   - "wget"
   - "socat"
-
+  - "ca-certificates"
 
 # Timezone for server
 common_timezone: "Europe/Moscow"

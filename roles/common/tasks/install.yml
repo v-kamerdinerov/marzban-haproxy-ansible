@@ -1,7 +1,12 @@
 ---
 
-- name: "Common | Install | Install additional packages"
+
+- name: "Common | Install | Set list for install"
+  set_fact:
+    common_packages_list: "{{ common_packages + common_additional_packages | d('') }}"
+
+- name: "Common | Install | Install packages"
   package:
-    name: "{{ common_packages }}"
+    name: "{{ common_packages_list }}"
     state: "present"
   ignore_errors: "{{ ansible_check_mode }}"

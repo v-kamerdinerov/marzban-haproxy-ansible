@@ -4,7 +4,7 @@
   community.general.ufw:
     state: reset
 
-- name: "Common | {{ role | upper() }} | UFW | Allow default web access ports"
+- name: "Common | {{ role | upper() }} | UFW | Allow ports per node"
   community.general.ufw:
     rule: allow
     port: "{{ item }}"

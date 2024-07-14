@@ -19,7 +19,7 @@
 
 - name: "Common | Kernel | Show CPU level"
   debug:
-    msg: "CPU поддерживается x86-64-v{{ current_level }}"
+    msg: "CPU support level is x86-64-v{{ current_level }}"
 
 - name: "Common | Kernel | Ensure dependencies are installed"
   apt:
