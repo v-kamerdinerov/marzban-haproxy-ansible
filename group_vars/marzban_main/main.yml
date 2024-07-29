@@ -5,5 +5,5 @@ common_open_ports:
   - "80"
   - "443"
 
-# Уровень логгирования панели
+# Уровень логирования панели
 marzban_log_level: "warning"
