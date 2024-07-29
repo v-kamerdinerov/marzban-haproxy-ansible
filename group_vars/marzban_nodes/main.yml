@@ -4,4 +4,5 @@
 common_open_ports: "{{ common_open_ports_additional + marzban_api_ports }}"
 
 common_open_ports_additional:
-  - "{{ marzban_vless_tcp_reality_port }}"
+  - "80"
+  - "443"
