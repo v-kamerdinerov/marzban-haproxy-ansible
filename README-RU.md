@@ -3,6 +3,12 @@
 ![GitHub CI Status](https://github.com/v-kamerdinerov/marzban-haproxy-ansible/actions/workflows/linter.yml/badge.svg)
 ![GitHub](https://img.shields.io/github/license/v-kamerdinerov/marzban-haproxy-ansible)
 
+----
+
+[![Typing SVG](https://readme-typing-svg.herokuapp.com?font=Fira+Code&pause=1000&center=true&width=435&lines=Automated.+Easy.+Secure.)](https://git.io/typing-svg)
+
+----
+
 <p align="center">
  <a href="./README.md">
  English

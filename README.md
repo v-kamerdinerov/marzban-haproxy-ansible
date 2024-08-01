@@ -3,6 +3,12 @@
 ![GitHub CI Status](https://github.com/v-kamerdinerov/marzban-haproxy-ansible/actions/workflows/linter.yml/badge.svg)
 ![GitHub](https://img.shields.io/github/license/v-kamerdinerov/marzban-haproxy-ansible)
 
+----
+
+[![Typing SVG](https://readme-typing-svg.herokuapp.com?font=Fira+Code&pause=1000&center=true&width=435&lines=Automated.+Easy.+Secure.)](https://git.io/typing-svg)
+
+----
+
 <p align="center">
  <a href="./README.md">
  English
@@ -117,7 +123,7 @@ ansible-playbook marzban-deploy.yml
 
 
 ### ToDo / Plans
-* Adding the ability to use a separate MySQL/MariaDB DB instance
+- [] Adding the ability to use a separate MySQL/MariaDB DB instance
 * Adding possibility to automatically generate Lets Encrypt certificate if it is not present in the inventory
 * Adding new variate inbound like Trojan, Vmess etc
 * Adding automatic backup scripts
