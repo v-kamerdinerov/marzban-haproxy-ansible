@@ -23,15 +23,18 @@ Marzban is a proxy management tool that provides a simple and easy-to-use user i
 * Configuration for main nodes and for individual additional nodes
 * Ability to change SSH port fully automatically
 * Configuration of system limits, sysctl
-* Variable installation of xanmod kernel with BBR3 tweak
-* Variable installation of warp
+* Variable installation of xanmod kernel with BBR3 tweak `(default == true)`
+* Variable installation of warp `(default == false)`
 * Blocking of all ports except SSH (including custom), web based (80/443) and those used for marzban node-api.
 * and more
 
 ## Requirements
 
-* Linux VPS servers with Ubuntu 20/22 installed.
+* Linux VPS servers with Ubuntu 20/22/24 installed.
 * Own a domain name
+
+If you are using an additional node, it is important that the domain name matches the following pattern `{{ inventory_hostname }}.{{ marzban_domain }}`.
+
 * Ansible 2.14.1 or higher
 
 ## Preparation
@@ -70,19 +73,25 @@ private_key_file = /path/to/private.key
 
 ## Configuration
 
+The basic configuration is done in `group_vars` ansible.
+
+**WARNING** Be careful how you fill in the variables, each of them is documented and it is very important for proper operation after the playbook is rolled out.
+
 * `./group_vars/marzban/marzban.yml` - universal, common variables for all nodes used. (domain, sni, common settings)
 
+Example:
 ```yaml
-# Основной домен используемых для панели
-marzban_domain: example.com
+# Main domain used for the panel/reality
+marzban_domain: example-domain.com
 
-# Сетевое имя под которые будем сообщать при обращен
-marzban_sni: "vk.com"
+...
 
-# Ваш адрес электронной почты
-email: foo@bar
+# Network name for masking traffic
+marzban_sni: "discord.com"
 
-# Часовой пояс
+...
+
+# Time zone
 common_timezone: "Europe/Moscow"
 ```
 
@@ -98,7 +107,21 @@ common_open_ports:
 ## I'm tired wait, go go go
 
 
-
 ```shell
 ansible-playbook marzban-deploy.yml
 ```
+
+
+## FAQ
+[FAQ](./doc/FAQ.md)
+
+
+### ToDo / Plans
+* Adding the ability to use a separate MySQL/MariaDB DB instance
+* Adding possibility to automatically generate Lets Encrypt certificate if it is not present in the inventory
+* Adding new variate inbound like Trojan, Vmess etc
+* Adding automatic backup scripts
+* Fix known issues :)
+
+### Known issues
+[Issues](./issues.md)
