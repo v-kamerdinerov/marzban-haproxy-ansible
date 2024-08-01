@@ -48,6 +48,15 @@ marzban_vless_shortids: ""
 marzban_dns_servers:
   - "8.8.8.8"
 
+marzban_direct_domains:
+  - "full:cp.cloudflare.com"
+  - "domain:msftconnecttest.com"
+  - "domain:msftncsi.com"
+  - "domain:connectivitycheck.gstatic.com"
+  - "domain:captive.apple.com"
+  - "full:detectportal.firefox.com"
+  - "domain:networkcheck.kde.org"
+
 ### Host info configuration
 
 marzban_panel_host_info:

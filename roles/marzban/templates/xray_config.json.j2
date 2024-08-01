@@ -78,13 +78,9 @@
             {
               "outboundTag": "DIRECT",
               "domain": [
-                "full:cp.cloudflare.com",
-                "domain:msftconnecttest.com",
-                "domain:msftncsi.com",
-                "domain:connectivitycheck.gstatic.com",
-                "domain:captive.apple.com",
-                "full:detectportal.firefox.com",
-                "domain:networkcheck.kde.org"
+{% for site in marzban_direct_domains %}
+                     "{{ site }}"{% if not loop.last %},{% endif %}
+{% endfor %}
               ],
               "type": "field"
             },
