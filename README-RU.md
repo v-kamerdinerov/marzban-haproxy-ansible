@@ -5,7 +5,7 @@
 
 ----
 
-[![Typing SVG](https://readme-typing-svg.herokuapp.com?font=Fira+Code&pause=1000&center=true&width=435&lines=Automated.+Easy.+Secure.)](https://git.io/typing-svg)
+<p align="center"><img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&pause=1000&center=true&vCenter=true&width=435&lines=Automated.+Easy.+Secure." alt="Typing SVG" /></p>
 
 ----
 
