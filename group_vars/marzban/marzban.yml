@@ -1,0 +1,119 @@
+---
+
+# Main domain used for the panel/reality
+marzban_domain: example-domain.com
+
+# Subdomain for accessing the Marzban control panel. Full path {{ panel_path }}.{{ marzban_domain }}
+marzban_panel_uri: "panel.{{ marzban_domain }}"
+
+# Network name for masking traffic
+marzban_sni: "discord.com"
+
+# Login and password for accessing the panel
+marzban_panel_login: "admin"
+marzban_panel_password: "panelpassword"
+
+# Port used for vless_reality
+marzban_vless_tcp_reality_port: "12000"
+
+# Ports used for communication with the Marzban node
+# - the first port is always the service port
+# - the second port is always the API port for xray-core
+marzban_api_ports:
+  - "62050"
+  - "62051"
+
+# Flag for setting outbound traffic configuration through Cloudflare services
+marzban_warp: false
+
+# Flag for enabling API documentation at /docs and /redoc.
+marzban_docs: false
+
+# List of DNS servers used
+marzban_dns_servers:
+  - "8.8.8.8"
+  - "8.8.4.4"
+  - "1.1.1.1"
+  - "1.0.0.1"
+
+# Traffic filter settings through Cloudflare
+marzban_warp_domains:
+  - "geosite:openai"
+  - "domain:ipinfo.io"
+  - "domain:iplocation.net"
+  - "domain:spotify.com"
+  - "domain:linkedin.com"
+
+# Logging level of the panel
+marzban_log_level: "warning"
+
+###
+# Time zone
+common_timezone: "Europe/Moscow"
+
+# Flag for installing the custom xanmod kernel with BBR3 support
+common_xanmod_kernel: true
+
+
+# List of additional packages to be installed on the used nodes
+common_additional_packages:
+  - "vnstat"
+  - "git"
+
+
+### SSL configuration
+### IMPORTANT: The certificate and key names must always follow the pattern - {{ some_cool_name }}.cert and {{ some_cool_name }}.key
+### These certificates will then be used in the variables marzban_ssl_certfile and marzban_ssl_keyfile
+vault_ssl_certs:
+  example-domain.com.cert: |
+    -----BEGIN CERTIFICATE-----
+    MIIDvDCCAqSgAwIBAgIUNQJEwM4oJdv2Xq2V9tFRDtVUfXMwDQYJKoZIhvcNAQEL
+    BQAwbDELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcM
+    DVNhbiBGcmFuY2lzY28xEzARBgNVBAoMCk15IENvbXBhbnkxGzAZBgNVBAMMEmV4
+    YW1wbGUtZG9tYWluLmNvbTAeFw0yNDA3MjkxMDM5NDNaFw0yNTA3MjkxMDM5NDNa
+    MGwxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRYwFAYDVQQHDA1T
+    YW4gRnJhbmNpc2NvMRMwEQYDVQQKDApNeSBDb21wYW55MRswGQYDVQQDDBJleGFt
+    cGxlLWRvbWFpbi5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDO
+    95w59NWVA4sRIx3cpE3S/iQyxR+VPXflvH7ygsYZJDZA+5UO90KWwgyWMQ9WpOKH
+    LmsYRbL1SWaSCWbMzTt3W8xnitEhxF2OchDQfFjOo1JpgZK+t41caLO/2f50hHTJ
+    mWEx5N0dc1yJ/Q3AoZn8ErHAtgz6GZdutKYo4bCnkuXYFPWcXhyoE85Mbi6AGOEA
+    RBD2ID9DM52FpCauZyM4/hwLVEUmM+odiT/pAHM9n+QD51m6jZRBrorWrcMrVZhA
+    MM1c/wMLpw42nR60vjAPcDrU6497TARYeZGcpkRaqjr7tO/q0COlJb/4RhhHnMJA
+    wFZR4cMFpL4TeZfnEdTPAgMBAAGjVjBUMDMGA1UdEQQsMCqCEmV4YW1wbGUtZG9t
+    YWluLmNvbYIUKi5leGFtcGxlLWRvbWFpbi5jb20wHQYDVR0OBBYEFM1vY7s8LWgK
+    Vq3Gh8yuNGyldx+qMA0GCSqGSIb3DQEBCwUAA4IBAQBSJeB/u5eZkUH33V60xKk3
+    MuLtScx19IMdIQlKdJxFqKcUHNJZCr2Qel2JBzrnVJhkGmGGveuDuzDF6X8xlUoJ
+    EAnwj6fp8ejJ0rY8Qmlxp+MnzciHmfUi2jA7OP57I2LP+Ln5YC5O5TEBBz2wT37s
+    b96k+hE/OGadfoooTEIaVe7BXPRpigZ1qBVvMs/Cmp0lIPULCCajZMclFUVNuoEg
+    6tDXGyLXAf4QvZSdNeKFXFfTS2SjOWpzjn5v/U7v8xHk7nROkxWBR9KSRFNsRjCf
+    q45juslAHwAu0Z9+W4LaNsKwe0ixRyEzGPW0lhCPQScL3FvRfFiaZ18zKbrwURl8
+    -----END CERTIFICATE-----
+  example-domain.com.key: |
+    -----BEGIN PRIVATE KEY-----
+    MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDO95w59NWVA4sR
+    Ix3cpE3S/iQyxR+VPXflvH7ygsYZJDZA+5UO90KWwgyWMQ9WpOKHLmsYRbL1SWaS
+    CWbMzTt3W8xnitEhxF2OchDQfFjOo1JpgZK+t41caLO/2f50hHTJmWEx5N0dc1yJ
+    /Q3AoZn8ErHAtgz6GZdutKYo4bCnkuXYFPWcXhyoE85Mbi6AGOEARBD2ID9DM52F
+    pCauZyM4/hwLVEUmM+odiT/pAHM9n+QD51m6jZRBrorWrcMrVZhAMM1c/wMLpw42
+    nR60vjAPcDrU6497TARYeZGcpkRaqjr7tO/q0COlJb/4RhhHnMJAwFZR4cMFpL4T
+    eZfnEdTPAgMBAAECggEAOChSkR1ASMcl2FgNdb11Sm9f9hCrsax0mHcNgRL/2nmL
+    aRV6jA2GWW68yJH2Rf3GY4SyVWswFEM+3BhF9wMnBAt6CoxNk5p7AjgsHM3osOT6
+    6xrX7PzUFANq5n8pfockQ0FlcIrXfnK7ZMuvjBmtNQsDhTVAjyobf1PwE/6tFsKV
+    hwnTMerIo48PoPOoH0Uh/iIZrycVMfr46W44BMnUsNn1Ft+N6GNnQlY6zt6bnYHj
+    pDg1QTzyPDH8apOXuqo2SGn8FZoO+RVAS2CXtJWQjVd8UDi1PLDoY7DBi6WLI8oh
+    wKITsPJvVNQjm2lEanIyR9PqcfDnc2YRiaPEpLvdwQKBgQD1EkrWGUQaOZDoGy05
+    jTUkmj/j7UVggMAON7FuaLQ6i3LVamE0uI/DcFkIc6lsMYWgDbqhOM1Z9DPDXVzq
+    q/gUWeelYooRrv0TL7Ohfqt16mPrkiuVKeX5l5A507kWzpvONNoZrniQ7nUUQ/DX
+    t7L9YrpU4g7jsSNmVTil2NzODwKBgQDYMlMOYI7rh5Yqb/Hp3zpam9BAZNBbHrp9
+    xXaamgT5f0l4yZSit0I/bWJ4uqxTORVY13odbMBM1BhWJ0sgQj1vIZnykTnUv14+
+    enqfepD3GXc/1uaRPeHrgVfUhZ2p6S5poJ0lAuDAEKNKV6UhwispDp9DbHqRWyYX
+    77M9aYlNQQKBgENZ2p1KZk/6wBs51Mz7RL6hcauXOrjRyXZe0fFw7w8j4dRLHxnZ
+    GxFwH9fVyZsFZR7ehwrlzHHLTiqDzxRjXJNjPelS0nUXrU+HjYt1f3OxjfJgwn+E
+    +0ID6EwsJrLg5yrdlY73RwU1s5F1NoxiXNuMNX88fTEQLpViGGZj2hL7AoGBAJKv
+    wm600QO5YQe2IJsf3IXxxiCKxlusw7fmLIzFB68I0B7mFrU4RfinDPMBJT7qMjOv
+    L6mbSfZWyZRa4LwodWpbkApmwqg4l4cort5Z2NXvL1vfQV02cXzKq38EkW7hSZ5d
+    XYHpK/jk0QX15ZK8HXCj/SdQCPFquLPw7No0KvaBAoGBANVasKlGnbLVm0Ogqq69
+    HpwCZDg6kSPCAhxrNhzxQ2+upA03hcqocQQDaIAukehmJiychRmAzLEJ9dTHch10
+    kI0b1uYAryNT6JtiomUB0CRd3y3Ljx+Zvs/HV3YIjh/eara4EHm9cp7qzE52Rll0
+    WsxP7hG9NsXQ9gItY9bLoILa
+    -----END PRIVATE KEY-----
