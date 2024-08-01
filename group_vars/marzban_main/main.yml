@@ -1,9 +1,6 @@
 ---
 
-# Порты которые нужно открыть на main ноде (ssh уже включен в роль)
+# Ports that need to be opened on the main node (ssh is already included in the role)
 common_open_ports:
   - "80"
   - "443"
-
-# Уровень логирования панели
-marzban_log_level: "warning"
