@@ -102,7 +102,7 @@ marzban_sni: "awesomesni.com"
 common_timezone: "Europe/Moscow"
 ```
 
-* `./group_vars/marzban_main/main.yml` - общие переменные для каждого из узлов - главные узлы с основной панелью и узлы-миньоны, используемые для расширения.
+* `./group_vars/marzban_main/main.yml` / `./group_vars/marzban_nodes/main.yml` - общие переменные для каждого из узлов - главные узлы с основной панелью и узлы-миньоны, используемые для расширения. Конфигурировать не требуется.
 
 ```yaml
 # firewall

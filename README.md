@@ -95,7 +95,7 @@ marzban_sni: "discord.com"
 common_timezone: "Europe/Moscow"
 ```
 
-* `./group_vars/marzban_main/main.yml` - common variables for each of the nodes - main nodes with the main panel, and minion nodes used for expansion.
+* `./group_vars/marzban_main/main.yml` / `./group_vars/marzban_nodes/main.yml` - common variables for each of the nodes - main nodes with the main panel, and minion nodes used for expansion. No configuration is required.
 
 ```yaml
 # firewall
