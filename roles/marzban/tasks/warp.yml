@@ -1,0 +1,92 @@
+---
+- name: "Marzban | Warp | Gather instance facts"
+  setup: {}
+
+- name: "Marzban | Warp | Ensure dependencies are installed."
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+    state: present
+  when: marzban_warp_add_repo | bool
+
+- name: "Marzban | Warp | Ensure additional dependencies are installed (on Ubuntu < 20.04 and any other systems)."
+  apt:
+    name: gnupg2
+    state: present
+  when: ansible_distribution != 'Ubuntu' or ansible_distribution_version is version('20.04', '<')
+
+- name: "Marzban | Warp | Ensure additional dependencies are installed (on Ubuntu >= 20.04)."
+  apt:
+    name: gnupg
+    state: present
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version is version('20.04', '>=')
+
+- name: "Marzban | Warp | Add cloudflare-warp apt key."
+  ansible.builtin.get_url:
+    url: "{{ marzban_warp_apt_gpg_key }}"
+    dest: "{{ marzban_warp_apt_gpg_key_path }}"
+    mode: '0644'
+    force: false
+    checksum: "{{ marzban_warp_apt_gpg_key_checksum | default(omit) }}"
+  ignore_errors: "{{ marzban_warp_apt_ignore_key_error }}"
+  when: marzban_warp_add_repo | bool
+
+
+- name: "Marzban | Warp | Add cloudflare-warp repository."
+  apt_repository:
+    repo: "{{ marzban_warp_apt_repository }}"
+    state: present
+    filename: "{{ marzban_warp_apt_filename }}"
+    update_cache: true
+  when: marzban_warp_add_repo | bool
+
+- name: "Marzban | Warp | Install cloudflare-warp packages."
+  package:
+    name: "{{ marzban_warp_packages }}"
+    state: "{{ marzban_warp_packages_state }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+
+- name: "Marzban | Warp | Check warp client"
+  command: warp-cli --accept-tos account
+  register: warp_registration_status
+  changed_when: warp_registration_status.rc == 0
+
+- name: "Marzban | Warp | Show registration status"
+  debug:
+    msg: "{{ warp_registration_status.stdout }}"
+
+- name: "Marzban | Warp | Check for missing registration"
+  set_fact:
+    warp_missing_registration: "{{ 'Missing registration' in warp_registration_status.stdout }}"
+
+- name: "Marzban | Warp"
+  block:
+  - name: "Marzban | Warp | Registration"
+    debug:
+      msg: "Cloudflare WARP Account Registration in progress..."
+
+  - name: "Marzban | Warp | Init warp client"
+    command: warp-cli --accept-tos register
+    register: warp_registration
+    changed_when: warp_registration.rc == 0
+
+  - name: "Marzban | Warp | Set warp mode proxy"
+    command: warp-cli --accept-tos set-mode proxy
+    register: warp_mode_proxy
+    changed_when: warp_mode_proxy.rc == 0
+
+  - name: "Marzban | Warp | Connect to warp"
+    command: warp-cli --accept-tos connect
+    register: warp_connect
+    changed_when: warp_connect.rc == 0
+
+  - name: "Marzban | Warp | Show warp info"
+    debug:
+      msg: |
+        ----------------------------
+        WARP Client: Running
+        SOCKS5 Port: 40000
+        ----------------------------
+  when: warp_missing_registration

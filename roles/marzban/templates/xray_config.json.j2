@@ -1,0 +1,111 @@
+{
+    "log": {
+        "loglevel": "{{ marzban_log_level }}",
+        "access": "/var/lib/marzban/access.log",
+        "error": "/var/lib/marzban/error.log",
+        "dnsLog": true
+    },
+  "dns": {
+    "servers": {{ marzban_dns_servers | tojson }},
+    "queryStrategy": "UseIPv4"
+    },
+    "inbounds": [
+        {
+            "tag": "{{ marzban_vless_inbound_tag }}",
+            "listen": "0.0.0.0",
+            "port": "{{ marzban_vless_tcp_reality_port }}",
+            "protocol": "vless",
+            "settings": {
+                "clients": [],
+                "decryption": "none"
+            },
+            "streamSettings": {
+                "network": "tcp",
+                "tcpSettings": {
+                    "acceptProxyProtocol": true
+                },
+                "security": "reality",
+                "realitySettings": {
+                    "show": false,
+                    "dest": "{{ marzban_sni }}:443",
+                    "xver": 0,
+                    "serverNames": [
+                        "{{ marzban_sni }}"
+                    ],
+                    "privateKey": "{{ marzban_vless_private_key }}",
+                    "shortIds": [
+                        "{{ marzban_vless_shortids }}"
+                    ]
+                }
+            },
+            "sniffing": {
+                "enabled": true,
+                "destOverride": [
+                    "http",
+                    "tls"
+                ]
+            }
+        }
+    ],
+    "outbounds": [
+        {
+            "protocol": "freedom",
+            "tag": "DIRECT"
+        },
+        {
+            "protocol": "blackhole",
+            "tag": "BLOCK"
+        },
+{% if marzban_warp is defined and marzban_warp %}
+        {
+            "tag": "warp",
+            "protocol": "socks",
+            "settings": {
+              "servers": [
+                {
+                  "address": "127.0.0.1",
+                  "port": 40000
+                }
+              ]
+            }
+        }
+{% endif %}
+    ],
+    "routing": {
+        "domainMatcher": "hybrid",
+        "domainStrategy": "IPIfNonMatch",
+        "rules": [
+            {
+              "outboundTag": "DIRECT",
+              "domain": [
+                "full:cp.cloudflare.com",
+                "domain:msftconnecttest.com",
+                "domain:msftncsi.com",
+                "domain:connectivitycheck.gstatic.com",
+                "domain:captive.apple.com",
+                "full:detectportal.firefox.com",
+                "domain:networkcheck.kde.org"
+              ],
+              "type": "field"
+            },
+            {
+                "protocol": [
+                    "bittorrent"
+                ],
+                "outboundTag": "BLOCK",
+                "type": "field"
+            },
+{% if marzban_warp is defined and marzban_warp %}
+            {
+                "outboundTag": "warp",
+                "domain": [
+{% for site in marzban_warp_domains %}
+                     "{{ site }}"{% if not loop.last %},{% endif %}
+{% endfor %}
+                ],
+                "type": "field"
+            }
+{% endif %}
+        ]
+    }
+}

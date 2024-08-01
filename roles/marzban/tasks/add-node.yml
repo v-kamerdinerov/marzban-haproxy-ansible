@@ -1,0 +1,219 @@
+---
+
+- name: "Marzban | Add Nodes | Get ADMIN token"
+  uri:
+    url: "https://{{ marzban_panel_uri }}/api/admin/token"
+    method: POST
+    headers:
+      accept: "application/json"
+      Content-Type: "application/x-www-form-urlencoded"
+    body: "grant_type=&username={{ marzban_panel_login }}&password={{ marzban_panel_password }}&scope=&client_id=&client_secret="
+    body_format: form-urlencoded
+    return_content: true
+  retries: 8
+  delay: 5
+  register: token_data
+  until: token_data is not failed
+  when:
+    - inventory_hostname == groups[marzban_main_group_name][0]  | default(omit)
+
+
+- name: "Marzban | Add nodes | Get SSL certificate for node"
+  uri:
+    url: "https://{{ marzban_panel_uri }}/api/node/settings"
+    method: GET
+    headers:
+      accept: "application/json"
+      Authorization: "Bearer {{ (token_data.content | from_json).access_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    return_content: true
+  retries: 8
+  delay: 5
+  register: node_setting
+  until: node_setting is not failed
+  when:
+    - inventory_hostname == groups[marzban_main_group_name][0]  | default(omit)
+
+
+- name: "Marzban | Add nodes | Save SSL client key if not exist"
+  block:
+    - name: "Marzban | Add nodes | Create folder"
+      ansible.builtin.file:
+        path: "{{  marzban_node_dirs | json_query('[*].work_dir') | first }}"
+        state: directory
+        recurse: true
+        owner: root
+        group: root
+
+    - name: "Marzban | Add nodes | Check if SSL client key file exists"
+      stat:
+        path: "{{ marzban_ssl_node_path }}"
+      register: key_stat
+
+
+    - name: "Marzban | Add nodes | Set new SSL client Key"
+      set_fact:
+        marzban_ssl_node_certificate_new: "{{ node_setting.json | json_query('certificate') }}"
+      when:
+        - not key_stat.stat.exists
+
+    - name: "Marzban | Add nodes | Save to file"
+      copy:
+        content: "{{ marzban_ssl_node_certificate_new }}"
+        dest: "{{ marzban_ssl_node_path }}"
+        owner: root
+        group: root
+        mode: '0644'
+      when:
+        - not key_stat.stat.exists
+
+    - name: "Marzban | Add nodes | Read the SSL client Key"
+      slurp:
+        src: "{{ marzban_ssl_node_path }}"
+      register: existing_key
+      when:
+        - key_stat.stat.exists
+
+    - name: "Marzban | Add nodes | Set existing SSL client Key"
+      set_fact:
+        marzban_ssl_node_certificate: "{{ existing_key.content | b64decode }}"
+      when: key_stat.stat.exists
+
+    - name: "Marzban | Add nodes | Set new SSL client key"
+      set_fact:
+        marzban_ssl_node_certificate: "{{ marzban_ssl_node_certificate_new }}"
+      when: not key_stat.stat.exists
+  when:
+    - marzban_ssl_node_certificate is not defined or marzban_ssl_node_certificate|length == 0
+    - inventory_hostname == groups[marzban_main_group_name][0]  | default(omit)
+
+
+- name:  "Marzban | Add nodes | Distribute SSL on nodes"
+  copy:
+    content: "{{ hostvars[groups[marzban_main_group_name][0]].marzban_ssl_node_certificate }}"
+    dest: "{{ marzban_ssl_node_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when:
+    - inventory_hostname in groups['marzban_nodes']
+
+#ToDo work with apply
+- name: "Marzban | Startup"
+  vars:
+    marzban_ssl_node_certificate: "{{ hostvars[groups[marzban_main_group_name][0]].marzban_ssl_node_certificate }}"
+  include_tasks:
+    file: "conf/{{ role }}.yml"
+  args:
+    apply:
+      tags:
+        - start
+  loop:
+    - node
+  loop_control:
+    loop_var: role
+  tags: start
+  when:
+    - inventory_hostname in groups['marzban_nodes']
+
+
+- name: "Marzban | Add Nodes | Assign via api"
+  block:
+  - name: "Marzban | Add Nodes | Get list nodes"
+    uri:
+      url: "https://{{ marzban_panel_uri }}/api/nodes"
+      method: GET
+      headers:
+        accept: "application/json"
+        Authorization: "Bearer {{ (token_data.content | from_json).access_token }}"
+        Content-Type: "application/json"
+      body_format: json
+      return_content: true
+      status_code: [200]
+    retries: 8
+    delay: 5
+    register: get_nodes
+    until: get_nodes is not failed
+
+  - name: "Marzban | Add Nodes | Show existing nodes"
+    debug:
+      msg: |
+        existing nodes: {{ get_nodes.json | map(attribute='name') | list }}
+    check_mode: false
+
+  - name: "Marzban | Add Nodes | Set facts"
+    set_fact:
+      inventory_names: "{{ groups['marzban_nodes'] | map('extract', hostvars, 'inventory_hostname') | list }}"
+      existing_nodes: "{{ get_nodes.json | map(attribute='name') | list }}"
+
+  - name: "Marzban | Add Nodes | Search new node"
+    set_fact:
+      new_node_names: "{{ inventory_names | difference(existing_nodes) }}"
+
+  - name: "Marzban | Add Nodes | Show new nodes"
+    debug:
+      msg: |
+        nodes to add: {{ new_node_names }}
+    check_mode: false
+
+  - name: "Marzban | Add Nodes | Assign"
+    block:
+    - name: "Marzban | Add Nodes | Assign nodes to main"
+      uri:
+        url: "https://{{ marzban_panel_uri }}/api/node"
+        method: POST
+        headers:
+          accept: "application/json"
+          Authorization: "Bearer {{ (token_data.content | from_json).access_token }}"
+          Content-Type: "application/json"
+        body:
+          name: "{{ item }}"
+          address: "{{ hostvars[item]['ansible_host'] }}"
+          port: "{{ marzban_api_ports[0] }}"
+          api_port: "{{ marzban_api_ports[1] }}"
+          add_as_new_host: "false"
+          usage_coefficient: "1"
+        body_format: json
+        return_content: true
+        status_code: [200, 409]
+      retries: 8
+      delay: 5
+      register: assign_node
+      until: assign_node is not failed
+      with_items: "{{ new_node_names }}"
+
+    - name: "Marzban | Add Nodes | Set marzban_nodes_host_info"
+      set_fact:
+        marzban_nodes_host_info: |
+          {% set nodes_info = [] %}
+          {% for node in new_node_names %}
+          {% set _ = nodes_info.append({
+              "remark": "VLESS-" ~ node,
+              "address": node ~ '.' ~ marzban_domain,
+              "port": 443
+            })
+          %}
+          {% endfor %}
+          {{ nodes_info }}
+      when: marzban_nodes_host_info is not defined or marzban_nodes_host_info == ""
+
+    - name: "Marzban | Add Nodes | Update host info"
+      uri:
+        url: "https://{{ marzban_panel_uri }}/api/hosts"
+        method: PUT
+        headers:
+          accept: "application/json"
+          Authorization: "Bearer {{ (token_data.content | from_json).access_token }}"
+          Content-Type: "application/json"
+        body:
+          VLESS TCP REALITY: "{{ marzban_panel_host_info + marzban_nodes_host_info }}"
+        body_format: json
+        return_content: true
+      retries: 8
+      delay: 5
+      register: update_host_info
+      until: update_host_info is not failed
+    when: get_nodes.json | length == 0 or new_node_names | length > 0
+  when:
+    - inventory_hostname == groups[marzban_main_group_name][0]  | default(omit)

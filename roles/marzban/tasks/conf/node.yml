@@ -1,0 +1,37 @@
+---
+- name: "Marzban | Configure {{ role | upper() }} | Haproxy"
+  include_tasks: haproxy.yml
+  tags: config
+
+- name: "Marzban | Configure {{ role | upper() }} | Create folders"
+  ansible.builtin.file:
+    path: "{{ item.value }}"
+    state: directory
+    recurse: true
+    owner: root
+    group: root
+  with_dict: "{{ marzban_node_dirs }}"
+  tags: config
+
+- name: "Marzban | Configure {{ role | upper() }} | Template Docker compose and marzban configs"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ marzban_node_dirs | json_query('[*].base_dir') | first }}/{{ item.dst }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - {src: docker-compose-node.yml.j2, dst: docker-compose.yml, mode: "0644"}
+    - {src: env-node.j2, dst: .env, mode: "0644"}
+  tags: config
+
+- name: "Marzban | Configure {{ role | upper() }} | Create and start services"
+  community.docker.docker_compose_v2:
+    project_src: "{{ marzban_node_dirs | json_query('[*].base_dir') | first }}"
+  register: startup_output
+  when: marzban_ssl_node_certificate is defined and marzban_ssl_node_certificate | length > 0
+  tags: start
+
+- name: "Marzban | Configure {{ role | upper() }} | Show bootstrap result"
+  ansible.builtin.debug:
+    var: startup_output
+  when: marzban_ssl_node_certificate is defined and marzban_ssl_node_certificate | length > 0
+  tags: start

@@ -1,0 +1,76 @@
+---
+
+marzban_system_dirs:
+  - base_dir: "/opt/marzban"
+  - work_dir: "/var/lib/marzban"
+  - certs_dir: "/var/lib/marzban/certs"
+
+marzban_node_dirs:
+  - base_dir: "/opt/marzban"
+  - work_dir: "/var/lib/marzban-node"
+
+marzban_ssl_certfile: "{{ vault_ssl_certs.keys() | select('search', 'cert') | list | first }}"
+marzban_ssl_keyfile: "{{ vault_ssl_certs.keys() | select('search', 'key') | list | first }}"
+
+marzban_image_tag: "latest"
+
+marzban_haproxy_image_tag: "2.4.25"
+marzban_haproxy_dirs:
+  - etc_dir: "/etc/haproxy"
+
+
+### Panel configuration
+
+marzban_panel_login: "admin"
+marzban_panel_password: "verystrongpass"
+
+### XRAY configuration
+marzban_domain: "example.com"
+marzban_panel_uri: "{{ marzban_domain }}"
+
+marzban_vless_inbound_tag: "VLESS TCP REALITY"
+
+marzban_vless_tcp_reality_port: "12000"
+marzban_panel_port: "10000"
+
+marzban_api_ports:
+  - "62050"
+  - "62051"
+
+marzban_sni: "discordapp.com"
+
+# If null role generate X25519 automatically at marzban_vless_private_key_path
+marzban_vless_private_key: ""
+marzban_vless_private_key_path: "{{ marzban_system_dirs | json_query('[*].work_dir') | first }}/x25519_key"
+
+marzban_vless_shortids: ""
+
+marzban_dns_servers:
+  - "8.8.8.8"
+
+### Host info configuration
+
+marzban_panel_host_info:
+  - remark: "VLESS-panel"
+    address: "{{ marzban_domain }}"
+    port: 443
+
+
+### WARP configuration
+marzban_warp: false
+
+marzban_warp_domains:
+  - "geosite:openai"
+  - "domain:ipinfo.io"
+  - "iplocation.net"
+  - "domain:spotify.com"
+  - "domain:linkedin.com"
+
+### Swagger and docs /docs and /redoc
+marzban_docs: false
+
+### Node configuration
+
+marzban_ssl_node_path: "/var/lib/marzban-node/ssl_client_cert.pem"
+marzban_ssl_node_certificate: ""
+marzban_nodes_host_info: ""

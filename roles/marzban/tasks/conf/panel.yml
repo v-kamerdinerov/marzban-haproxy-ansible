@@ -1,0 +1,147 @@
+---
+- name: "Marzban | Configure {{ role | upper() }} | Haproxy"
+  include_tasks: haproxy.yml
+
+- name: "Marzban | Configure {{ role | upper() }} | Create folders"
+  ansible.builtin.file:
+    path: "{{ item.value }}"
+    state: directory
+    recurse: true
+    owner: root
+    group: root
+  with_dict: "{{ marzban_system_dirs }}"
+
+- name: "Marzban | Configure {{ role | upper() }} | Template Docker compose configs"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ marzban_system_dirs | json_query('[*].base_dir') | first }}/{{ item.dst }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - {src: docker-compose.yml.j2, dst: docker-compose.yml, mode: "0644"}
+    - {src: env.j2, dst: .env, mode: "0644"}
+
+- name: "Marzban | Configure {{ role | upper() }} | Generate private key if not exist"
+  block:
+    - name: "Marzban | Configure {{ role | upper() }} | Check if X25519 key file exists"
+      stat:
+        path: "{{ marzban_vless_private_key_path }}"
+      register: key_stat
+
+    - name: "Marzban | Configure {{ role | upper() }} | Info"
+      debug:
+        msg: "Get gozargah/marzban docker image..."
+      changed_when: false
+      when: not key_stat.stat.exists
+
+    - name: "Marzban | Configure {{ role | upper() }} | Generate X25519 key if it does not exist"
+      command: "docker run --rm gozargah/marzban xray x25519"
+      register: generate_key_result
+      changed_when: false
+      when: not key_stat.stat.exists
+
+    - name: "Marzban | Configure {{ role | upper() }} | Set new Private key"
+      set_fact:
+        new_key: "{{ generate_key_result.stdout | regex_search('Private key: (.+)', '\\1') | first }}"
+      when: not key_stat.stat.exists
+
+    - name: "Marzban | Configure {{ role | upper() }} | Save to file"
+      copy:
+        content: "{{ new_key }}"
+        dest: "{{ marzban_vless_private_key_path }}"
+        owner: root
+        group: root
+        mode: '0644'
+      when: not key_stat.stat.exists
+
+    - name: "Marzban | Configure {{ role | upper() }} | Read the existing key"
+      slurp:
+        src: "{{ marzban_vless_private_key_path }}"
+      register: existing_key
+      when: key_stat.stat.exists
+
+    - name: "Marzban | Configure {{ role | upper() }} | Set existing Private Key"
+      set_fact:
+        marzban_vless_private_key: "{{ existing_key.content | b64decode }}"
+      when: key_stat.stat.exists
+
+    - name: "Marzban | Configure {{ role | upper() }} | Set new Private key"
+      set_fact:
+        marzban_vless_private_key: "{{ new_key }}"
+      when: not key_stat.stat.exists
+  when: marzban_vless_private_key is not defined or marzban_vless_private_key|length == 0
+
+- name: "Marzban | Configure {{ role | upper() }} | Template xray config"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ marzban_system_dirs | json_query('[*].work_dir') | first }}/{{ item.dst }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - {src: xray_config.json.j2, dst: xray_config.json, mode: "0644"}
+
+- name: "Marzban | Configure {{ role | upper() }} | Template ssl certificate"
+  copy:
+    dest: "{{ (marzban_system_dirs | json_query('[*].certs_dir') | first) }}/{{ item.key }}"
+    owner: root
+    group: root
+    mode: '0655'
+    backup: false
+    content: "{{ item.value }}"
+  loop: "{{ vault_ssl_certs | dict2items }}"
+
+
+- name: "Marzban | Configure {{ role | upper() }} | Create and start services"
+  community.docker.docker_compose_v2:
+    project_src: "{{ marzban_system_dirs | json_query('[*].base_dir') | first }}"
+  register: startup_output
+
+- name: "Marzban | Configure {{ role | upper() }} | Show bootstrap result"
+  ansible.builtin.debug:
+    var: startup_output
+
+- name: "Marzban | Configure {{ role | upper() }} | Get ADMIN token"
+  uri:
+    url: "https://{{ marzban_panel_uri }}/api/admin/token"
+    method: POST
+    headers:
+      accept: "application/json"
+      Content-Type: "application/x-www-form-urlencoded"
+    body: "grant_type=&username={{ marzban_panel_login }}&password={{ marzban_panel_password }}&scope=&client_id=&client_secret="
+    body_format: form-urlencoded
+    return_content: true
+  retries: 8
+  delay: 5
+  register: token_data
+  until: token_data is not failed
+
+- name: "Marzban | Configure {{ role | upper() }} | Get host info"
+  uri:
+    url: "https://{{ marzban_panel_uri }}/api/hosts"
+    method: GET
+    headers:
+      accept: "application/json"
+      Authorization: "Bearer {{ (token_data.content | from_json).access_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    return_content: true
+  retries: 8
+  delay: 5
+  register: panel_hosts_info
+  until: panel_hosts_info is not failed
+
+
+- name: "Marzban | Configure {{ role | upper() }} | Update host info"
+  uri:
+    url: "https://{{ marzban_panel_uri }}/api/hosts"
+    method: PUT
+    headers:
+      accept: "application/json"
+      Authorization: "Bearer {{ (token_data.content | from_json).access_token }}"
+      Content-Type: "application/json"
+    body:
+      VLESS TCP REALITY: "{{ marzban_panel_host_info }}"
+    body_format: json
+    return_content: true
+  retries: 8
+  delay: 5
+  register: panel_host_info_change
+  until: panel_host_info_change is not failed

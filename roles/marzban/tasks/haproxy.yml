@@ -1,0 +1,19 @@
+---
+
+- name: "Marzban | Configure {{ role | upper() }} | HAproxy | Create folders"
+  ansible.builtin.file:
+    path: "{{ item.value }}"
+    state: directory
+    recurse: true
+    owner: root
+    group: root
+  with_dict: "{{ marzban_haproxy_dirs }}"
+
+
+- name: "Marzban | Configure {{ role | upper() }} | HAproxy | Template haproxy configs"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ marzban_haproxy_dirs | json_query('[*].etc_dir') | first }}/{{ item.dst }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - {src: haproxy.cfg.j2, dst: haproxy.cfg, mode: "0644"}

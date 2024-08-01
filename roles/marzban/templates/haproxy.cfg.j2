@@ -1,0 +1,41 @@
+global
+    log stdout format raw local0 info
+	daemon
+
+defaults
+  mode tcp
+  option tcplog
+  timeout client 30s
+  timeout connect 4s
+  timeout server 30s
+
+
+frontend http_frontend
+  bind *:80
+  mode http
+  http-response set-header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload;"
+  redirect scheme https code 301 if !{ ssl_fc }
+  timeout http-request 10s
+  log global
+  option httplog
+
+frontend https_frontend
+  bind *:443 alpn h2,http/1.1
+  tcp-request inspect-delay 5s
+  tcp-request content accept if { req_ssl_hello_type 1 }
+{% if 'panel' in role %}
+  use_backend panel if { req.ssl_sni -m end {{ marzban_panel_uri }} }
+{% endif %}
+  use_backend reality if { req.ssl_sni -m end {{ marzban_sni }} }
+  log global
+  option tcplog
+
+
+{% if 'panel' in role %}
+backend panel
+  server srv1 127.0.0.1:{{ marzban_panel_port }} check
+{% endif %}
+
+backend reality
+  retry-on all-retryable-errors
+  server srv1 127.0.0.1:{{ marzban_vless_tcp_reality_port }} send-proxy-v2 tfo check
