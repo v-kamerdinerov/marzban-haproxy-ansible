@@ -30,7 +30,7 @@ jobs:
         run: pip3 install --upgrade pip
 
       - name: Install test dependencies.
-        run: pip3 install yamllint ansible-lint ansible
+        run: pip3 install yamllint ansible-lint ansible jmespath
 
       - name: Lint code with yamllint.
         run: yamllint --format github .
