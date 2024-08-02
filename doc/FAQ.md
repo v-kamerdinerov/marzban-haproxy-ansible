@@ -51,11 +51,11 @@ After this, run the playbook
 ansible-playbook marzban-deploy.yml
 ```
 
-<img src="./images/nodes.png" width="600">
+<img src="./images/nodes.png" width="400">
 
-<img src="./images/host_info.png" width="600">
+<img src="./images/host_info.png" width="400">
 
-<img src="./images/configs.png" width="600">
+<img src="./images/configs.png" width="400">
 
 ## I want to use warp. What do I need to configure?
 Set the variable `marzban_warp` to `true` before deployment

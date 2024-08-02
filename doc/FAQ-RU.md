@@ -51,11 +51,11 @@ marzban_panel_password: "panelpassword"
 ansible-playbook marzban-deploy.yml
 ```
 
-<img src="./images/nodes.png" width="600">
+<img src="./images/nodes.png" width="400">
 
-<img src="./images/host_info.png" width="600">
+<img src="./images/host_info.png" width="400">
 
-<img src="./images/configs.png" width="600">
+<img src="./images/configs.png" width="400">
 
 ## Я хочу использовать warp. Что мне нужно настроить?
 Перед деплоем выставить переменную `marzban_warp` в положение `true`
