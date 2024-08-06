@@ -127,6 +127,7 @@ ansible-playbook marzban-deploy.yml
 * Adding possibility to automatically generate Lets Encrypt certificate if it is not present in the inventory
 * Adding new variate inbound like Trojan, Vmess etc
 * Adding automatic backup scripts
+* Add automatic search for the best SNI depending on the region
 * Fix known issues :)
 
 ### Known issues

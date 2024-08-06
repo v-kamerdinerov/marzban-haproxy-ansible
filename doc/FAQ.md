@@ -1,6 +1,9 @@
-## FAQ
+# FAQ
 
-[[_TOC_]]
+- [How do I access the control panel?](#how-do-i-access-the-control-panel)
+- [I want to enable the documentation available at /doc, how do I do that?](#i-want-to-enable-the-documentation-available-at-doc-how-do-i-do-that)
+- [I want to configure additional nodes for load balancing, how do I do that?](#i-want-to-configure-additional-nodes-for-load-balancing-how-do-i-do-that)
+- [I want to use warp. What do I need to configure?](#i-want-to-use-warp-what-do-i-need-to-configure)
 
 ## How do I access the control panel?
 After running the playbook, the Marzban panel is available at the path specified in the inventory `marzban_domain: example-domain.com`
@@ -48,11 +51,11 @@ After this, run the playbook
 ansible-playbook marzban-deploy.yml
 ```
 
-<img src="./images/nodes.png" width="600">
+<img src="./images/nodes.png" width="400">
 
-<img src="./images/host_info.png" width="600">
+<img src="./images/host_info.png" width="400">
 
-<img src="./images/configs.png" width="600">
+<img src="./images/configs.png" width="400">
 
 ## I want to use warp. What do I need to configure?
 Set the variable `marzban_warp` to `true` before deployment
