@@ -11,6 +11,7 @@ marzban_sni: "discord.com"
 
 # Login and password for accessing the panel
 marzban_panel_login: "admin"
+# Password should NOT contain symbols like ^$
 marzban_panel_password: "panelpassword"
 
 # Port used for vless_reality
