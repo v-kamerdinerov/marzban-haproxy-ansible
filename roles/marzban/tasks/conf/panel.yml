@@ -105,13 +105,20 @@
     headers:
       accept: "application/json"
       Content-Type: "application/x-www-form-urlencoded"
-    body: "grant_type=&username={{ marzban_panel_login }}&password={{ marzban_panel_password }}&scope=&client_id=&client_secret="
+    body:
+      grant_type: ""
+      username: "{{ marzban_panel_login }}"
+      password: "{{ marzban_panel_password }}"
+      scope: ""
+      client_id: ""
+      client_secret: ""
     body_format: form-urlencoded
     return_content: true
   retries: 8
   delay: 5
   register: token_data
   until: token_data is not failed
+  tags: bootstrap
 
 - name: "Marzban | Configure {{ role | upper() }} | Get host info"
   uri:
@@ -127,7 +134,7 @@
   delay: 5
   register: panel_hosts_info
   until: panel_hosts_info is not failed
-
+  tags: bootstrap
 
 - name: "Marzban | Configure {{ role | upper() }} | Update host info"
   uri:
@@ -145,3 +152,4 @@
   delay: 5
   register: panel_host_info_change
   until: panel_host_info_change is not failed
+  tags: bootstrap

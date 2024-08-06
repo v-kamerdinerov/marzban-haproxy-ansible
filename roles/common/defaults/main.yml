@@ -6,6 +6,7 @@ common_packages:
   - "wget"
   - "socat"
   - "ca-certificates"
+  - "jq"
 
 # Timezone for server
 common_timezone: "Europe/Moscow"
