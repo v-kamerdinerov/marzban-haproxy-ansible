@@ -55,9 +55,9 @@
         {
             "protocol": "blackhole",
             "tag": "BLOCK"
-        },
+        }
 {% if marzban_warp is defined and marzban_warp %}
-        {
+        ,{
             "tag": "warp",
             "protocol": "socks",
             "settings": {
@@ -90,9 +90,9 @@
                 ],
                 "outboundTag": "BLOCK",
                 "type": "field"
-            },
+            }
 {% if marzban_warp is defined and marzban_warp %}
-            {
+            ,{
                 "outboundTag": "warp",
                 "domain": [
 {% for site in marzban_warp_domains %}
