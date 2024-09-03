@@ -3,7 +3,6 @@ services:
     image: haproxy:{{ marzban_haproxy_image_tag }}
     restart: always
     network_mode: host
-    # for NET_BIND_SERVICE, ToDo try more clean method
     user: root
     volumes:
       - {{ marzban_haproxy_dirs | json_query('[*].etc_dir') | first }}/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg

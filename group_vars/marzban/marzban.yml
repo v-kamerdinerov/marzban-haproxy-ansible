@@ -30,6 +30,9 @@ marzban_warp: false
 # Flag for enabling API documentation at /docs and /redoc.
 marzban_docs: false
 
+# Flag for using mysql instance instead of sql-lite
+marzban_mysql_instance: true
+
 # List of DNS servers used
 marzban_dns_servers:
   - "8.8.8.8"

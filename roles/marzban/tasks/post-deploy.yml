@@ -1,0 +1,13 @@
+---
+
+- name: "Marzban | Post-deploy | Save MySQL passwords to credentials"
+  copy:
+    dest: "{{ item.path }}"
+    content: "{{ lookup('vars', item.name) }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - { name: 'marzban_mysql_user_password', path: "{{ marzban_system_dirs | json_query('[*].vault_dir') | first }}/pass_marzban_mysql_user_password" }
+    - { name: 'marzban_mysql_root_password', path: "{{ marzban_system_dirs | json_query('[*].vault_dir') | first }}/pass_marzban_mysql_root_password" }
+  when: marzban_mysql_instance is defined and marzban_mysql_instance

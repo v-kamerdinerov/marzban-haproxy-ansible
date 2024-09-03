@@ -2,6 +2,7 @@
 
 marzban_system_dirs:
   - base_dir: "/opt/marzban"
+  - vault_dir: "/opt/marzban/credentials"
   - work_dir: "/var/lib/marzban"
   - certs_dir: "/var/lib/marzban/certs"
 
@@ -41,7 +42,7 @@ marzban_sni: "discordapp.com"
 
 # If null role generate X25519 automatically at marzban_vless_private_key_path
 marzban_vless_private_key: ""
-marzban_vless_private_key_path: "{{ marzban_system_dirs | json_query('[*].work_dir') | first }}/x25519_key"
+marzban_vless_private_key_path: "{{ marzban_system_dirs | json_query('[*].vault_dir') | first }}/x25519_key"
 
 marzban_vless_shortids: ""
 
@@ -77,6 +78,20 @@ marzban_warp_domains:
 
 ### Swagger and docs /docs and /redoc
 marzban_docs: false
+
+### Mysql(mariadb) configuration
+
+marzban_mysql_instance: false
+marzban_mysql_image_tag: "lts"
+marzban_mysql_db_name: "marzban"
+marzban_mysql_user_name: "marzban"
+marzban_mysql_user_password: ""
+marzban_mysql_root_password: ""
+
+# tuning
+marzban_mysql_innodb_open_files: "1024"
+marzban_mysql_innodb_buffer_pool_size: "268435456"
+marzban_mysql_binlog_expire_logs_seconds: "5184000" # 60 days
 
 ### Node configuration
 
