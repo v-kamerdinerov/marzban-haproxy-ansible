@@ -76,6 +76,14 @@ marzban_warp_domains:
 
 По дефолту в инвентори уже включена такая возможность `marzban_mysql_instance: true`
 
+```
+root@main:/opt/marzban# docker ps
+CONTAINER ID   IMAGE                     COMMAND                  CREATED          STATUS                    PORTS     NAMES
+9cac00a5a838   haproxy:2.4.25            "docker-entrypoint.s…"   23 minutes ago   Up 23 minutes                       marzban-haproxy-1
+8623ba69c221   gozargah/marzban:latest   "bash -c 'alembic up…"   23 minutes ago   Up 23 minutes                       marzban-marzban-1
+63a539f0ee62   mariadb:lts               "docker-entrypoint.s…"   23 minutes ago   Up 23 minutes (healthy)             marzban-mariadb-1
+```
+
 ## Я хочу бекапировать все данные marzban, как мне это сделать?
 
 По дефолту в инвентори уже включена такая возможность `marzban_backup: true`.

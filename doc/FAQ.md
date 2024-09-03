@@ -76,6 +76,14 @@ marzban_warp_domains:
 
 By default, `marzban_mysql_instance: true` is already enabled in the inventory.
 
+```
+root@main:/opt/marzban# docker ps
+CONTAINER ID   IMAGE                     COMMAND                  CREATED          STATUS                    PORTS     NAMES
+9cac00a5a838   haproxy:2.4.25            "docker-entrypoint.s…"   23 minutes ago   Up 23 minutes                       marzban-haproxy-1
+8623ba69c221   gozargah/marzban:latest   "bash -c 'alembic up…"   23 minutes ago   Up 23 minutes                       marzban-marzban-1
+63a539f0ee62   mariadb:lts               "docker-entrypoint.s…"   23 minutes ago   Up 23 minutes (healthy)             marzban-mariadb-1
+```
+
 ## I want backup all my marzban data, how do I do this?
 
 By default, `marzban_backup: true` is already enabled in the inventory.
