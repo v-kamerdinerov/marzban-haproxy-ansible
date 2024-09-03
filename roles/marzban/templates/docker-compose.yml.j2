@@ -21,3 +21,34 @@ services:
     volumes:
       - {{ marzban_system_dirs | json_query('[*].work_dir') | first }}:/var/lib/marzban
       - /etc/localtime:/etc/localtime:ro
+{% if marzban_mysql_instance is defined and marzban_mysql_instance %}
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  mariadb:
+    image: mariadb:{{ marzban_mysql_image_tag }}
+    restart: always
+    env_file: .env
+    network_mode: host
+    command:
+      - --bind-address=127.0.0.1
+      - --character_set_server=utf8mb4
+      - --collation_server=utf8mb4_unicode_ci
+      - --host-cache-size=0
+      - --innodb-open-files={{ marzban_mysql_innodb_open_files }}
+      - --innodb-buffer-pool-size={{ marzban_mysql_innodb_buffer_pool_size }}
+      - --binlog_expire_logs_seconds={{ marzban_mysql_binlog_expire_logs_seconds }}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  mariadb_data:
+    name: mariadb_data
+{% endif %}
