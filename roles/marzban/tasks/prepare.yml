@@ -7,15 +7,37 @@
 
 - name: "Marzban | Prepare | Mysql"
   block:
-    - name: "Marzban | Prepare | Set marzban_mysql_user_password if not defined or empty"
+    - name: "Marzban | Prepare | Mysql | Set marzban_mysql_user_password if not defined or empty"
       set_fact:
         marzban_mysql_user_password: "{{ lookup('password', '/dev/null length=20') }}"
       when: marzban_mysql_user_password is not defined or marzban_mysql_user_password == ''
 
-    - name: "Marzban | Prepare | Set marzban_mysql_root_password if not defined or empty"
+    - name: "Marzban | Prepare | Mysql | Set marzban_mysql_root_password if not defined or empty"
       set_fact:
         marzban_mysql_root_password: "{{ lookup('password', '/dev/null length=20') }}"
       when: marzban_mysql_root_password is not defined or marzban_mysql_root_password == ''
+
+    - name: "Marzban | Prepare | Mysql | Set marzban_mysql_innodb_buffer_pool_size if not defined or empty"
+      block:
+        - name:  "Marzban | Prepare | Mysql | Gather only memory facts"
+          setup:
+            filter: "ansible_memtotal_mb"
+
+        - name: "Marzban | Prepare | Mysql | Calculate innodb_buffer_pool_size in bytes for small memory"
+          set_fact:
+            marzban_mysql_innodb_buffer_pool_size: "{{ (ansible_memtotal_mb * 0.3 * 1024 * 1024) | int }}"
+          when: ansible_memtotal_mb < 2000  # Use 30% from free mem if < 2GB
+
+        - name: "Marzban | Prepare | Mysql | Adjust innodb_buffer_pool_size for larger memory"
+          set_fact:
+            marzban_mysql_innodb_buffer_pool_size: "{{ (ansible_memtotal_mb * 0.4 * 1024 * 1024) | int }}"
+          when: ansible_memtotal_mb >= 2000  # Use 40% from free mem if >= 2GB
+      when: marzban_mysql_innodb_buffer_pool_size is not defined or marzban_mysql_innodb_buffer_pool_size == ''
+
+    - name: "Marzban | Prepare | Mysql | Calculate innodb_log_file_size"
+      set_fact:
+        marzban_mysql_innodb_log_file_size: "{{ (marzban_mysql_innodb_buffer_pool_size | int * 0.25) | int }}"
+
   when: marzban_mysql_instance is defined and marzban_mysql_instance
 
 - name: "Marzban | Prepare | Backup"
