@@ -123,7 +123,7 @@ ansible-playbook marzban-deploy.yml
 
 
 ### ToDo / Plans
-* Adding the ability to use a separate MySQL/MariaDB DB instance
+* ~~Adding the ability to use a separate MySQL/MariaDB DB instance~~
 * Adding possibility to automatically generate Lets Encrypt certificate if it is not present in the inventory
 * Adding new variate inbound like Trojan, Vmess etc
 * Adding automatic backup scripts
