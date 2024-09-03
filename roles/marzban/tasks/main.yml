@@ -24,3 +24,8 @@
 
 - name: "Marzban | Post-deploy"
   include_tasks: post-deploy.yml
+
+- name: "Marzban | Backup"
+  include_tasks: backup.yml
+  when:
+    - marzban_backup is defined and marzban_backup

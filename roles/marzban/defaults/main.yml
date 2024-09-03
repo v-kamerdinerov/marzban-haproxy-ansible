@@ -93,6 +93,12 @@ marzban_mysql_innodb_open_files: "1024"
 marzban_mysql_innodb_buffer_pool_size: "268435456"
 marzban_mysql_binlog_expire_logs_seconds: "5184000" # 60 days
 
+### Backup
+marzban_backup: false
+marzban_backup_telegram_bot_token: ""
+marzban_backup_telegram_chat_id: ""
+marzban_backup_cron: { minute: "0", hour: "2", day: "*", month: "*", weekday: "*" }
+
 ### Node configuration
 
 marzban_ssl_node_path: "/var/lib/marzban-node/ssl_client_cert.pem"

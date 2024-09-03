@@ -33,6 +33,14 @@ marzban_docs: false
 # Flag for using mysql instance instead of sql-lite
 marzban_mysql_instance: true
 
+# Flag for enabling automatic backup
+marzban_backup: true
+
+marzban_backup_telegram_bot_token: ""
+
+# If chat_id is null role try to get it automatically
+marzban_backup_telegram_chat_id: ""
+
 # List of DNS servers used
 marzban_dns_servers:
   - "8.8.8.8"

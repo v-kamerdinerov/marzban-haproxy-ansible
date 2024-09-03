@@ -17,3 +17,25 @@
         marzban_mysql_root_password: "{{ lookup('password', '/dev/null length=20') }}"
       when: marzban_mysql_root_password is not defined or marzban_mysql_root_password == ''
   when: marzban_mysql_instance is defined and marzban_mysql_instance
+
+- name: "Marzban | Prepare | Backup"
+  block:
+    - name: "Marzban | Prepare | Backup | Get updates from Telegram bot"
+      uri:
+        url: "https://api.telegram.org/bot{{ marzban_backup_telegram_bot_token }}/getUpdates"
+        method: GET
+        return_content: true
+        status_code: 200
+        headers:
+          Content-Type: "application/json"
+      register: telegram_response
+      retries: 8
+      delay: 5
+      until: telegram_response is not failed
+
+    - name: "Marzban | Prepare | Backup | Extract chat ID from response"
+      set_fact:
+        marzban_backup_telegram_chat_id: "{{ item.message.chat.id }}"
+      loop: "{{ telegram_response.json.result }}"
+      when: item.message is defined and item.message.chat is defined
+  when: marzban_backup_telegram_chat_id is defined and marzban_backup_telegram_chat_id | length == 0
