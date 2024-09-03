@@ -1,0 +1,19 @@
+---
+
+- name: "Marzban | Prepare | Get group name"
+  set_fact:
+    marzban_main_group_name: "marzban_main"
+    marzban_nodes_group_name: "marzban_nodes"
+
+- name: "Marzban | Prepare | Mysql"
+  block:
+    - name: "Marzban | Prepare | Set marzban_mysql_user_password if not defined or empty"
+      set_fact:
+        marzban_mysql_user_password: "{{ lookup('password', '/dev/null length=20') }}"
+      when: marzban_mysql_user_password is not defined or marzban_mysql_user_password == ''
+
+    - name: "Marzban | Prepare | Set marzban_mysql_root_password if not defined or empty"
+      set_fact:
+        marzban_mysql_root_password: "{{ lookup('password', '/dev/null length=20') }}"
+      when: marzban_mysql_root_password is not defined or marzban_mysql_root_password == ''
+  when: marzban_mysql_instance is defined and marzban_mysql_instance

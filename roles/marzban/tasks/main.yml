@@ -1,8 +1,7 @@
 ---
-- name: "Marzban | Get group name"
-  set_fact:
-    marzban_main_group_name: "marzban_main"
-    marzban_nodes_group_name: "marzban_nodes"
+
+- name: "Marzban | Prepare"
+  include_tasks: prepare.yml
 
 - name: "Marzban | Warp"
   include_tasks: warp.yml
@@ -22,3 +21,6 @@
   include_tasks: add-node.yml
   when:
     - marzban_nodes_group_name in groups
+
+- name: "Marzban | Post-deploy"
+  include_tasks: post-deploy.yml
