@@ -35,10 +35,11 @@ marzban_mysql_instance: true
 
 # Flag for enabling automatic backup
 marzban_backup: true
+marzban_backup_cron: { minute: "0", hour: "2", day: "*", month: "*", weekday: "*" }
 
+# Fill if you want sent you backups to Telegram. Stay null if not needed
 marzban_backup_telegram_bot_token: ""
-
-# If chat_id is null role try to get it automatically
+# If chat_id is null - role try to get it automatically. But first, start chat with you bot.
 marzban_backup_telegram_chat_id: ""
 
 # List of DNS servers used

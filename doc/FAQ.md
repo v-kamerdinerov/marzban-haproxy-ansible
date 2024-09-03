@@ -71,3 +71,45 @@ marzban_warp_domains:
   - "domain:spotify.com"
   - "domain:linkedin.com"
 ```
+
+## I want to use a separate Mysql database, how do I do that?
+
+By default, `marzban_mysql_instance: true` is already enabled in the inventory.
+
+## I want backup all my marzban data, how do I do this?
+
+By default, `marzban_backup: true` is already enabled in the inventory.
+
+The frequency of saving is configured in the `marzban_backup_cron` variable.
+
+```
+/var/lib/marzban_backups/backup_${DATE}/
+├── lib
+│   ├── access.log
+│   ├── certs
+│   │   ├── example-domain.com.cert
+│   │   └── example-domain.com.key
+│   ├── error.log
+│   └── xray_config.json
+│   └── db.sqlite3
+└── opt
+    ├── credentials
+    │   ├── pass_marzban_mysql_root_password
+    │   ├── pass_marzban_mysql_user_password
+    │   └── x25519_key
+    └── docker-compose.yml
+```
+
+The cron job saves all your data every day on the path:
+```/var/lib/marzban_backups/```
+
+If you have a optional DB instance, the job will also dump this database:
+
+```
+/var/lib/marzban_backups/backup_${date}/db-backup/
+└─── marzban.sql
+```
+
+Also, if you fill in the variables `marzban_backup_telegram_bot_token` and `marzban_backup_telegram_chat_id` the backup will be sent to your chat.
+
+<img src="./images/backup_telegram.png" width="400">
