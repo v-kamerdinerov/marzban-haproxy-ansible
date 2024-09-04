@@ -4,6 +4,8 @@
 - [I want to enable the documentation available at /doc, how do I do that?](#i-want-to-enable-the-documentation-available-at-doc-how-do-i-do-that)
 - [I want to configure additional nodes for load balancing, how do I do that?](#i-want-to-configure-additional-nodes-for-load-balancing-how-do-i-do-that)
 - [I want to use warp. What do I need to configure?](#i-want-to-use-warp-what-do-i-need-to-configure)
+- [I want to use a separate Mysql database, how do I do that?](#i-want-to-use-a-separate-mysql-database-how-do-i-do-that)
+- [I want backup all my marzban data, how do I do this?](#i-want-backup-all-my-marzban-data-how-do-i-do-this)
 
 ## How do I access the control panel?
 After running the playbook, the Marzban panel is available at the path specified in the inventory `marzban_domain: example-domain.com`
