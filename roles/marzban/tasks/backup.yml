@@ -1,0 +1,17 @@
+---
+
+- name: "Marzban | Backup | Add backup script"
+  copy:
+    src: "marzban_backup.sh"
+    dest: "/usr/local/bin/marzban_backup.sh"
+    mode: "0755"
+
+- name: "Marzban | Backup | Add cronjob"
+  cron:
+    name: "MARZBAN backup"
+    minute: "{{ marzban_backup_cron.minute | default(omit) }}"
+    hour: "{{ marzban_backup_cron.hour | default(omit) }}"
+    day: "{{ marzban_backup_cron.day | default(omit) }}"
+    month: "{{ marzban_backup_cron.month | default(omit) }}"
+    weekday: "{{ marzban_backup_cron.weekday | default(omit) }}"
+    job: "/usr/local/bin/marzban_backup.sh"

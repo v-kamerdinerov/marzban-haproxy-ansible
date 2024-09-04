@@ -7,13 +7,69 @@
 
 - name: "Marzban | Prepare | Mysql"
   block:
-    - name: "Marzban | Prepare | Set marzban_mysql_user_password if not defined or empty"
+    - name: "Marzban | Prepare | Mysql | Set marzban_mysql_user_password if not defined or empty"
       set_fact:
         marzban_mysql_user_password: "{{ lookup('password', '/dev/null length=20') }}"
-      when: marzban_mysql_user_password is not defined or marzban_mysql_user_password == ''
+      when:
+        - marzban_mysql_user_password is not defined or marzban_mysql_user_password == ''
+        - inventory_hostname == groups[marzban_main_group_name][0]  | default(omit)
 
-    - name: "Marzban | Prepare | Set marzban_mysql_root_password if not defined or empty"
+    - name: "Marzban | Prepare | Mysql | Set marzban_mysql_root_password if not defined or empty"
       set_fact:
         marzban_mysql_root_password: "{{ lookup('password', '/dev/null length=20') }}"
-      when: marzban_mysql_root_password is not defined or marzban_mysql_root_password == ''
+      when:
+        - marzban_mysql_root_password is not defined or marzban_mysql_root_password == ''
+        - inventory_hostname == groups[marzban_main_group_name][0]  | default(omit)
+
+    - name: "Marzban | Prepare | Mysql | Set marzban_mysql_innodb_buffer_pool_size if not defined or empty"
+      block:
+        - name:  "Marzban | Prepare | Mysql | Gather only memory facts"
+          setup:
+            filter: "ansible_memtotal_mb"
+
+        - name: "Marzban | Prepare | Mysql | Calculate innodb_buffer_pool_size in bytes for small memory"
+          set_fact:
+            marzban_mysql_innodb_buffer_pool_size: "{{ (ansible_memtotal_mb * 0.3 * 1024 * 1024) | int }}"
+          when:
+            - ansible_memtotal_mb < 2000  # Use 30% from free mem if < 2GB
+            - inventory_hostname == groups[marzban_main_group_name][0]  | default(omit)
+
+        - name: "Marzban | Prepare | Mysql | Adjust innodb_buffer_pool_size for larger memory"
+          set_fact:
+            marzban_mysql_innodb_buffer_pool_size: "{{ (ansible_memtotal_mb * 0.4 * 1024 * 1024) | int }}"
+          when:
+            - ansible_memtotal_mb >= 2000  # Use 40% from free mem if >= 2GB
+            - inventory_hostname == groups[marzban_main_group_name][0]  | default(omit)
+      when: marzban_mysql_innodb_buffer_pool_size is not defined or marzban_mysql_innodb_buffer_pool_size == ''
+
+    - name: "Marzban | Prepare | Mysql | Calculate innodb_log_file_size"
+      set_fact:
+        marzban_mysql_innodb_log_file_size: "{{ (marzban_mysql_innodb_buffer_pool_size | int * 0.25) | int }}"
+      when: inventory_hostname == groups[marzban_main_group_name][0]  | default(omit)
+
   when: marzban_mysql_instance is defined and marzban_mysql_instance
+
+- name: "Marzban | Prepare | Backup"
+  block:
+    - name: "Marzban | Prepare | Backup | Get updates from Telegram bot"
+      uri:
+        url: "https://api.telegram.org/bot{{ marzban_backup_telegram_bot_token }}/getUpdates"
+        method: GET
+        return_content: true
+        status_code: 200
+        headers:
+          Content-Type: "application/json"
+      register: telegram_response
+      retries: 8
+      delay: 5
+      until: telegram_response is not failed
+
+    - name: "Marzban | Prepare | Backup | Extract chat ID from response"
+      set_fact:
+        marzban_backup_telegram_chat_id: "{{ item.message.chat.id }}"
+      loop: "{{ telegram_response.json.result }}"
+      when: item.message is defined and item.message.chat is defined
+  when:
+    - marzban_backup_telegram_chat_id is defined and marzban_backup_telegram_chat_id | length == 0
+    - marzban_backup_telegram_bot_token is defined and marzban_backup_telegram_bot_token | length > 0
+    - inventory_hostname == groups[marzban_main_group_name][0]  | default(omit)
