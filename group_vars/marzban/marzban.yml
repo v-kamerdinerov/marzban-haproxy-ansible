@@ -1,55 +1,56 @@
 ---
 
-# Main domain used for the panel/reality
+# Main domain for the Marzban panel/reality
 marzban_domain: example-domain.com
 
-# Subdomain for accessing the Marzban control panel. Full path {{ panel_path }}.{{ marzban_domain }}
+# Subdomain for Marzban control panel access (Full path: {{ panel_path }}.{{ marzban_domain }})
 marzban_panel_uri: "panel.{{ marzban_domain }}"
 
-# Network name for masking traffic
+# SNI for traffic masking
 marzban_sni: "discord.com"
 
-# Login and password for accessing the panel
+# Login credentials for panel access
 marzban_panel_login: "admin"
-# Password should NOT contain symbols like ^$
+# Password must not contain symbols like ^$
 marzban_panel_password: "panelpassword"
 
-# Port used for vless_reality
+# Port for VLESS Reality TCP connections
 marzban_vless_tcp_reality_port: "12000"
 
-# Ports used for communication with the Marzban node
-# - the first port is always the service port
-# - the second port is always the API port for xray-core
+# Ports for communication with the Marzban node:
+# - First port: service port
+# - Second port: API port for xray-core
 marzban_api_ports:
   - "62050"
   - "62051"
 
-# Flag for setting outbound traffic configuration through Cloudflare services
+# Use Cloudflare WARP for outbound traffic (true/false)
 marzban_warp: false
 
-# Flag for enabling API documentation at /docs and /redoc.
+# Enable API documentation (available at /docs and /redoc)
 marzban_docs: false
 
-# Flag for using mysql instance instead of sql-lite
+# Use MySQL(maria-db) instance instead of SQLite (true/false)
 marzban_mysql_instance: true
 
-# Flag for enabling automatic backup
+# Enable automatic backup (true/false)
 marzban_backup: true
+# Backup schedule (cron format)
 marzban_backup_cron: { minute: "0", hour: "2", day: "*", month: "*", weekday: "*" }
 
-# Fill if you want sent you backups to Telegram. Stay null if not needed
+# Telegram bot token for backup notifications (leave empty if not needed)
 marzban_backup_telegram_bot_token: ""
-# If chat_id is null - role try to get it automatically. But first, start chat with you bot.
+# Telegram chat ID for backup notifications (auto-detected if empty; initiate chat with the bot first)
 marzban_backup_telegram_chat_id: ""
 
-# List of DNS servers used
+# DNS servers list
 marzban_dns_servers:
   - "8.8.8.8"
   - "8.8.4.4"
   - "1.1.1.1"
   - "1.0.0.1"
 
-# List of directs domains and resources. Traffic will go directly, bypassing the tunnel.
+# Direct domains list (traffic bypasses the tunnel)
 marzban_direct_domains:
   - "full:cp.cloudflare.com"
   - "domain:msftconnecttest.com"
@@ -59,7 +60,7 @@ marzban_direct_domains:
   - "full:detectportal.firefox.com"
   - "domain:networkcheck.kde.org"
 
-# Traffic filter settings through Cloudflare
+# Cloudflare WARP traffic filtering settings
 marzban_warp_domains:
   - "geosite:openai"
   - "domain:ipinfo.io"
@@ -67,26 +68,24 @@ marzban_warp_domains:
   - "domain:spotify.com"
   - "domain:linkedin.com"
 
-# Logging level of the panel
+# Panel logging level
 marzban_log_level: "warning"
 
-###
-# Time zone
+# Time zone configuration
 common_timezone: "Europe/Moscow"
 
-# Flag for installing the custom xanmod kernel with BBR3 support
+# Install custom Xanmod kernel with BBR3 support (true/false)
 common_xanmod_kernel: true
 
-
-# List of additional packages to be installed on the used nodes
+# Additional packages to install on nodes
 common_additional_packages:
   - "vnstat"
   - "git"
 
-
-### SSL configuration
-### IMPORTANT: The certificate and key names must always follow the pattern - {{ some_cool_name }}.cert and {{ some_cool_name }}.key
-### These certificates will then be used in the variables marzban_ssl_certfile and marzban_ssl_keyfile
+### SSL Configuration ###
+# Certificate and key names must be in the format: {{ some_cool_name }}.cert and {{ some_cool_name }}.key
+# Certificates will be used in marzban_ssl_certfile and marzban_ssl_keyfile
+# Certificates should cover both the domain {{ marzban_domain }} and its wildcard *.{{ marzban_domain }}
 vault_ssl_certs:
   example-domain.com.cert: |
     -----BEGIN CERTIFICATE-----

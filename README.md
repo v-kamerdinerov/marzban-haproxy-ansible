@@ -2,6 +2,7 @@
 
 ![GitHub CI Status](https://github.com/v-kamerdinerov/marzban-haproxy-ansible/actions/workflows/linter.yml/badge.svg)
 ![GitHub](https://img.shields.io/github/license/v-kamerdinerov/marzban-haproxy-ansible)
+[![GitHub tag](https://img.shields.io/github/tag/v-kamerdinerov/marzban-haproxy-ansible.svg)](https://github.com/v-kamerdinerov/marzban-haproxy-ansible/tags)
 
 ----
 
@@ -29,6 +30,7 @@ Marzban is a proxy management tool that provides a simple and easy-to-use user i
 * Configuration for main nodes and for individual additional nodes
 * Ability to change SSH port fully automatically
 * Configuration of system limits, sysctl
+* Variable installation with separate MariaDB SQL instance `(default == true)`
 * Variable installation of xanmod kernel with BBR3 tweak `(default == true)`
 * Variable installation of warp `(default == false)`
 * Blocking of all ports except SSH (including custom), web based (80/443) and those used for marzban node-api.
@@ -87,17 +89,17 @@ The basic configuration is done in `group_vars` ansible.
 
 Example:
 ```yaml
-# Main domain used for the panel/reality
+# Main domain for the Marzban panel/reality
 marzban_domain: example-domain.com
 
 ...
 
-# Network name for masking traffic
+# SNI for traffic masking
 marzban_sni: "discord.com"
 
 ...
 
-# Time zone
+# Time zone configuration
 common_timezone: "Europe/Moscow"
 ```
 

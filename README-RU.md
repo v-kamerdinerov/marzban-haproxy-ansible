@@ -2,6 +2,7 @@
 
 ![GitHub CI Status](https://github.com/v-kamerdinerov/marzban-haproxy-ansible/actions/workflows/linter.yml/badge.svg)
 ![GitHub](https://img.shields.io/github/license/v-kamerdinerov/marzban-haproxy-ansible)
+[![GitHub tag](https://img.shields.io/github/tag/v-kamerdinerov/marzban-haproxy-ansible.svg)](https://github.com/v-kamerdinerov/marzban-haproxy-ansible/tags)
 
 ----
 
@@ -29,6 +30,7 @@ Marzban - это инструмент управления прокси-серв
 * Конфигурация для main нод и для отдельных дополнительных node
 * Возможность смены SSH порта полностью в автоматическом режиме
 * Конфигурация системных лимитов, sysctl
+* Вариативная установка вместе с отдельным инстансом СУБД MariaDB `(default == true)`
 * Вариативная установка xanmod с твиком BBR3 `(default == true)`
 * Вариативная установка WARP `(default == false)`
 * Автоматическое закрытие всех портов, кроме:
@@ -94,17 +96,17 @@ private_key_file = /path/to/private.key
 
 Пример:
 ```yaml
-# Основной домен используемых для панели
+# Main domain for the Marzban panel/reality
 marzban_domain: example-domain.com
 
 ...
 
-# Сетевое имя под которые будем сообщать при обращен
-marzban_sni: "awesomesni.com"
+# SNI for traffic masking
+marzban_sni: "discord.com"
 
 ...
 
-# Часовой пояс
+# Time zone configuration
 common_timezone: "Europe/Moscow"
 ```
 
