@@ -1,6 +1,6 @@
 ---
 
-# Ports that need to be opened on the minion (node) node (ssh is already included in the role)
+# Ports to be opened on the minion (node) (SSH is already included by default)
 common_open_ports: "{{ common_open_ports_additional + marzban_api_ports }}"
 
 common_open_ports_additional:
