@@ -19,3 +19,6 @@ marzban_warp_packages:
   - "cloudflare-warp"
 
 marzban_warp_packages_state: present
+
+marzban_cli_script_url: "https://github.com/Gozargah/Marzban-scripts/raw/master/marzban.sh"
+marzban_cli_install_path: "/usr/local/bin/marzban"

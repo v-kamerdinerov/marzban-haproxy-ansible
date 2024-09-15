@@ -11,3 +11,9 @@
     - { name: 'marzban_mysql_user_password', path: "{{ marzban_system_dirs | json_query('[*].vault_dir') | first }}/pass_marzban_mysql_user_password" }
     - { name: 'marzban_mysql_root_password', path: "{{ marzban_system_dirs | json_query('[*].vault_dir') | first }}/pass_marzban_mysql_root_password" }
   when: marzban_mysql_instance is defined and marzban_mysql_instance
+
+- name: "Marzban | Post-deploy | Install marzban-cli"
+  ansible.builtin.get_url:
+    url: "{{ marzban_cli_script_url }}"
+    dest: "{{ marzban_cli_install_path }}"
+    mode: '0755'
