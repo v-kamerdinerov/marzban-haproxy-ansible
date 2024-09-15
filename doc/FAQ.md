@@ -8,7 +8,7 @@
 - [I want backup all my marzban data, how do I do this?](#i-want-backup-all-my-marzban-data-how-do-i-do-this)
 
 ## How do I access the control panel?
-After running the playbook, the Marzban panel is available at the path specified in the inventory `marzban_domain: example-domain.com`
+After running the playbook, the Marzban panel is available at the path specified in the inventory `marzban_panel_uri: "panel.{{ marzban_domain }}"`
 
 <img src="./images/dashboard.png" width="1000">
 
