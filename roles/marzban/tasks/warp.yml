@@ -8,18 +8,21 @@
       - apt-transport-https
       - ca-certificates
     state: present
+    update_cache: yes
   when: marzban_warp_add_repo | bool
 
 - name: "Marzban | Warp | Ensure additional dependencies are installed (on Ubuntu < 20.04 and any other systems)."
   apt:
     name: gnupg2
     state: present
+    update_cache: yes
   when: ansible_distribution != 'Ubuntu' or ansible_distribution_version is version('20.04', '<')
 
 - name: "Marzban | Warp | Ensure additional dependencies are installed (on Ubuntu >= 20.04)."
   apt:
     name: gnupg
     state: present
+    update_cache: yes
   when: ansible_distribution == 'Ubuntu' and ansible_distribution_version is version('20.04', '>=')
 
 - name: "Marzban | Warp | Add cloudflare-warp apt key."
