@@ -81,6 +81,7 @@
     src: "{{ item.src }}"
     dest: "{{ marzban_system_dirs | json_query('[*].work_dir') | first }}/{{ item.dst }}"
     mode: "{{ item.mode }}"
+    validate: /usr/bin/jq empty %s
   loop:
     - {src: xray_config.json.j2, dst: xray_config.json, mode: "0644"}
 
