@@ -29,12 +29,18 @@
 
     - name: "Marzban | Configure {{ role | upper() }} | Info"
       debug:
-        msg: "Get gozargah/marzban docker image..."
+        msg: |
+          INFO:
+          --------------------------------------------
+          Get marzban docker image...
+          Image name: {{ marzban_image }}
+          Image tag: {{ marzban_image_tag }}
+          --------------------------------------------
       changed_when: false
       when: not key_stat.stat.exists
 
     - name: "Marzban | Configure {{ role | upper() }} | Generate X25519 key if it does not exist"
-      command: "docker run --rm gozargah/marzban xray x25519"
+      command: "docker run --rm {{ marzban_image }} xray x25519"
       register: generate_key_result
       changed_when: false
       when: not key_stat.stat.exists
@@ -88,6 +94,7 @@
     content: "{{ item.value }}"
   loop: "{{ vault_ssl_certs | dict2items }}"
 
+- pause:
 
 - name: "Marzban | Configure {{ role | upper() }} | Create and start services"
   community.docker.docker_compose_v2:
@@ -106,7 +113,7 @@
       accept: "application/json"
       Content-Type: "application/x-www-form-urlencoded"
     body:
-      grant_type: ""
+      grant_type: "password"
       username: "{{ marzban_panel_login }}"
       password: "{{ marzban_panel_password }}"
       scope: ""
