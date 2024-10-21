@@ -14,7 +14,7 @@ services:
       - marzban
 
   marzban:
-    image: gozargah/marzban:{{ marzban_image_tag }}
+    image: {{ marzban_image }}:{{ marzban_image_tag }}
     restart: always
     env_file: .env
     network_mode: host

@@ -13,6 +13,7 @@ marzban_node_dirs:
 marzban_ssl_certfile: "{{ vault_ssl_certs.keys() | select('search', 'cert') | list | first }}"
 marzban_ssl_keyfile: "{{ vault_ssl_certs.keys() | select('search', 'key') | list | first }}"
 
+marzban_image: "gozargah/marzban"
 marzban_image_tag: "latest"
 
 marzban_haproxy_image_tag: "2.4.25"
