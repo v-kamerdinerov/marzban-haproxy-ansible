@@ -94,8 +94,6 @@
     content: "{{ item.value }}"
   loop: "{{ vault_ssl_certs | dict2items }}"
 
-- pause:
-
 - name: "Marzban | Configure {{ role | upper() }} | Create and start services"
   community.docker.docker_compose_v2:
     project_src: "{{ marzban_system_dirs | json_query('[*].base_dir') | first }}"
