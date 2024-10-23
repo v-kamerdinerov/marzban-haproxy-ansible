@@ -65,7 +65,11 @@
 				    </li>
 				    <li style="height: 45px;" class="list-group-item d-flex align-items-center">
 						<button style="padding: 0;" type="button" class="btn btn-link link-dark" onclick="copyToClipboard(window.location.href); showNotification('toast');">Скопировать подписку</button>
-						<div id="toast">Подписка скопирована</div>
+						<div id="toast">Скопировано!</div>
+				    </li>
+				    <li style="height: 45px;" class="list-group-item d-flex align-items-center">
+						<button style="padding: 0;" type="button" class="btn btn-link link-dark" onclick="copyToClipboard('{{ user.links | first }}'); showNotification('toast');">Скопировать конфиг</button>
+						<div id="toast">Скопировано!</div>
 				    </li>
 				    <li class="list-group-item d-flex justify-content-between align-items-center">
 						<form class="form-check form-switch">
