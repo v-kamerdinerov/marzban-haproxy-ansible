@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   haproxy:
-    image: haproxy:{{ marzban_haproxy_image_tag }}
+    image: {{ marzban_haproxy_image }}:{{ marzban_haproxy_image_tag }}
     restart: always
     network_mode: host
     user: root
@@ -27,7 +27,7 @@ services:
         condition: service_healthy
 
   mariadb:
-    image: mariadb:{{ marzban_mysql_image_tag }}
+    image: {{ marzban_mysql_image }}:{{ marzban_mysql_image_tag }}
     restart: always
     env_file: .env
     network_mode: host

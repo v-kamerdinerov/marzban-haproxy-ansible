@@ -16,6 +16,7 @@ marzban_ssl_keyfile: "{{ vault_ssl_certs.keys() | select('search', 'key') | list
 marzban_image: "gozargah/marzban"
 marzban_image_tag: "latest"
 
+marzban_haproxy_image: "haproxy"
 marzban_haproxy_image_tag: "2.4.25"
 marzban_haproxy_dirs:
   - etc_dir: "/etc/haproxy"
@@ -83,6 +84,7 @@ marzban_docs: false
 ### Mysql(mariadb) configuration
 
 marzban_mysql_instance: false
+marzban_mysql_image: "mariadb"
 marzban_mysql_image_tag: "lts"
 marzban_mysql_db_name: "marzban"
 marzban_mysql_user_name: "marzban"
