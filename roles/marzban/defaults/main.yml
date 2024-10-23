@@ -5,6 +5,7 @@ marzban_system_dirs:
   - vault_dir: "/opt/marzban/credentials"
   - work_dir: "/var/lib/marzban"
   - certs_dir: "/var/lib/marzban/certs"
+  - templates_dir: "/var/lib/marzban/templates"
 
 marzban_node_dirs:
   - base_dir: "/opt/marzban"

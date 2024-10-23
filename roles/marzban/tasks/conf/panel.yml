@@ -85,6 +85,12 @@
   loop:
     - {src: xray_config.json.j2, dst: xray_config.json, mode: "0644"}
 
+- name: "Marzban | Configure {{ role | upper() }} | Add subscription template"
+  copy:
+    src: "index.html"
+    dest: "{{ marzban_system_dirs | json_query('[*].templates_dir') | first }}/index.html"
+    mode: "0755"
+
 - name: "Marzban | Configure {{ role | upper() }} | Template ssl certificate"
   copy:
     dest: "{{ (marzban_system_dirs | json_query('[*].certs_dir') | first) }}/{{ item.key }}"
