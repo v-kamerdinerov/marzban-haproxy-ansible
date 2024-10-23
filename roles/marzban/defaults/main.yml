@@ -107,3 +107,6 @@ marzban_backup_cron: { minute: "0", hour: "2", day: "*", month: "*", weekday: "*
 marzban_ssl_node_path: "/var/lib/marzban-node/ssl_client_cert.pem"
 marzban_ssl_node_certificate: ""
 marzban_nodes_host_info: ""
+
+marzban_node_image: "gozargah/marzban-node"
+marzban_node_image_tag: "latest"
