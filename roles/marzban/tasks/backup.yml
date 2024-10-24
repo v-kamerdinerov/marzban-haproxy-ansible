@@ -1,5 +1,13 @@
 ---
 
+- name: "Marzban | Backup | Prepare | Install cli utility"
+  apt:
+    name:
+      - mysql-client
+    state: present
+    update_cache: true
+  when: marzban_mysql_instance is defined and marzban_mysql_instance
+
 - name: "Marzban | Backup | Add backup script"
   copy:
     src: "marzban_backup.sh"

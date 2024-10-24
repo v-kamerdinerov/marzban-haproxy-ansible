@@ -1,6 +1,6 @@
 services:
   haproxy:
-    image: haproxy:{{ marzban_haproxy_image_tag }}
+    image: {{ marzban_haproxy_image }}:{{ marzban_haproxy_image_tag }}
     restart: always
     network_mode: host
     user: root
@@ -12,7 +12,7 @@ services:
       - marzban-node
 
   marzban-node:
-    image: gozargah/marzban-node:latest
+    image: {{ marzban_node_image }}:{{ marzban_node_image_tag }}
     restart: always
     env_file: .env
     network_mode: host

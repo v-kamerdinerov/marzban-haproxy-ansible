@@ -7,7 +7,7 @@ marzban_domain: example-domain.com
 marzban_panel_uri: "panel.{{ marzban_domain }}"
 
 # SNI for traffic masking
-marzban_sni: "discord.com"
+marzban_sni: "awesome.sni"
 
 # Login credentials for panel access
 marzban_panel_login: "admin"

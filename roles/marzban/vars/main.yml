@@ -16,7 +16,7 @@ marzban_warp_apt_gpg_key_path: "/usr/share/keyrings/cloudflare-warp-archive-keyr
 marzban_warp_apt_filename: "cloudflare-client"
 
 marzban_warp_packages:
-  - "cloudflare-warp"
+  - "cloudflare-warp=2024.9.346.0"
 
 marzban_warp_packages_state: present
 

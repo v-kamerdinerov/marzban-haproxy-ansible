@@ -52,7 +52,7 @@
 
 
 - name: "Marzban | Warp | Check warp client"
-  command: warp-cli --accept-tos account
+  command: warp-cli --accept-tos status
   register: warp_registration_status
   changed_when: warp_registration_status.rc == 0
 

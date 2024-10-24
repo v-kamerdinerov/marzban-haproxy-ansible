@@ -105,6 +105,13 @@
           - 'ansible_distribution'
           - 'ansible_distribution_major_version'
 
+    - name: "Common | SSH | Ensure ssh enabled and started"
+      become: true
+      service:
+        name: ssh
+        state: started
+        enabled: true
+
     # We notified "Restart sshd" if we modified the sshd config.
     # By calling flush_handlers, we make sure the handler is run *right now*
     - name: "Common | SSH | Ensure SSH is reloaded if need be"
