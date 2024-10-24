@@ -89,7 +89,7 @@
   copy:
     src: "index.html"
     dest: "{{ marzban_system_dirs | json_query('[*].templates_dir') | first }}/index.html"
-    mode: "0755"
+    mode: "0644"
 
 - name: "Marzban | Configure {{ role | upper() }} | Template ssl certificate"
   copy:
