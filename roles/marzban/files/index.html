@@ -54,6 +54,9 @@
 			<div class="module subscription">
 				<h3 class="module-title">Подписка</h3>
 				<ul class="list-group list-group-flush">
+				    <li class="list-group-item d-flex justify-content-between align-items-center">
+						Имя: <span>{{ user.username }}</span>
+				    </li>
 					<li class="list-group-item d-flex justify-content-between align-items-center">
 						Статус<span>{% if user.status.value =='active' %}<div class="dot dot-green"></div>Активна{% elif user.status.value == 'limited' %}<div class="dot dot-yellow"></div>Ограничена{% elif user.status.value == 'expired' %}<div class="dot dot-red"></div>Истекла{% else %}<div class="dot dot-red"></div>Заблокирована{% endif %}</span>
 				    </li>
