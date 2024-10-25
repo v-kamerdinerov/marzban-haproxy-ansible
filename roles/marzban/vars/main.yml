@@ -6,6 +6,8 @@ marzban_warp_add_repo: true
 # marzban_warp repo URL.
 marzban_warp_repo_url: https://pkg.cloudflareclient.com
 
+
+marzban_warp_apt_install: false
 marzban_warp_apt_release_channel: main
 marzban_warp_apt_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
 marzban_warp_apt_repository: "deb [arch={{ marzban_warp_apt_arch }} signed-by={{ marzban_warp_apt_gpg_key_path }}] {{ marzban_warp_repo_url }} {{ ansible_distribution_release }} {{ marzban_warp_apt_release_channel }}"
@@ -14,11 +16,15 @@ marzban_warp_apt_gpg_key: "{{ marzban_warp_repo_url }}/pubkey.gpg"
 marzban_warp_apt_gpg_key_checksum: "sha256:1d78962d81c4c1061ef6b80bb28e85d6a76735d73677cf46f54ff5ea78abc94e"
 marzban_warp_apt_gpg_key_path: "/usr/share/keyrings/cloudflare-warp-archive-keyring.asc"
 marzban_warp_apt_filename: "cloudflare-client"
+marzban_warp_packages_state: present
 
 marzban_warp_packages:
-  - "cloudflare-warp=2024.9.346.0"
+  - "cloudflare-warp={{ marzban_warp_pkg_version }}"
+marzban_warp_pkg_version: "2024.6.497-1"
 
-marzban_warp_packages_state: present
+marzban_warp_deb_install: true
+marzban_warp_deb_package: "{{ https://pkg.cloudflareclient.com }}/pool/{{ ansible_distribution_release }}/main/c/cloudflare-warp/cloudflare-warp_{{ marzban_warp_pkg_version }}_amd64.deb"
+
 
 marzban_cli_script_url: "https://github.com/Gozargah/Marzban-scripts/raw/master/marzban.sh"
 marzban_cli_install_path: "/usr/local/bin/marzban"
