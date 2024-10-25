@@ -23,7 +23,7 @@ marzban_warp_packages:
 marzban_warp_pkg_version: "2024.6.497-1"
 
 marzban_warp_deb_install: true
-marzban_warp_deb_package: "{{ https://pkg.cloudflareclient.com }}/pool/{{ ansible_distribution_release }}/main/c/cloudflare-warp/cloudflare-warp_{{ marzban_warp_pkg_version }}_amd64.deb"
+marzban_warp_deb_package: "{{ marzban_warp_repo_url }}/pool/{{ ansible_distribution_release }}/{{ marzban_warp_apt_release_channel }}/c/cloudflare-warp/cloudflare-warp_{{ marzban_warp_pkg_version }}_amd64.deb"
 
 
 marzban_cli_script_url: "https://github.com/Gozargah/Marzban-scripts/raw/master/marzban.sh"
