@@ -18,8 +18,9 @@ marzban_warp_apt_gpg_key_path: "/usr/share/keyrings/cloudflare-warp-archive-keyr
 marzban_warp_apt_filename: "cloudflare-client"
 marzban_warp_packages_state: present
 
+marzban_warp_package_name: "cloudflare-warp"
 marzban_warp_packages:
-  - "cloudflare-warp={{ marzban_warp_pkg_version }}"
+  - "{{ marzban_warp_package_name }}={{ marzban_warp_pkg_version }}"
 marzban_warp_pkg_version: "2024.6.497-1"
 
 marzban_warp_deb_install: true

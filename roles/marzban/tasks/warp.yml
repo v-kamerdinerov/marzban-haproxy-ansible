@@ -58,7 +58,12 @@
   - name: "Marzban | Warp | Install cloudflare-warp packages via deb pkg"
     apt:
       deb: "{{ marzban_warp_deb_package }}"
-  when: marzban_warp_deb_package is definde and marzban_warp_deb_package
+
+  - name: "Marzban | Warp | Hold cloudflare-warp pkg"
+    dpkg_selections:
+      name: "{{ marzban_warp_package_name }}"
+      selection: hold
+  when: marzban_warp_deb_package is defined and marzban_warp_deb_package
 
 - name: "Marzban | Warp | Check warp client"
   command: warp-cli --accept-tos status
