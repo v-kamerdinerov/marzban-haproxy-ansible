@@ -1,10 +1,10 @@
 ---
+- name: SSH
+  include_tasks: ssh_port.yml
+  tags: ssh
 - name: Common
   include_tasks: common.yml
   tags: common
-#  loop: "{{ groups['marzban'] }}"
-#  loop_control:
-#    loop_var: host
 - name: Limits
   include_tasks: limits.yml
   tags: limits
@@ -14,9 +14,6 @@
 - name: Certificate
   include_tasks: cert.yml
   tags: certificate
-- name: SSH
-  include_tasks: ssh_port.yml
-  tags: ssh
 - name: Kernel
   include_tasks: kernel.yml
   tags: kernel

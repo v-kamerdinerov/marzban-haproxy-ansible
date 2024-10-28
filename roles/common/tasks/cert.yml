@@ -12,3 +12,6 @@
   when: item.key.endswith('.cert')
   register: _ca_certificates_copied
   notify: Update ca-certificates
+
+- name: Flush handlers
+  meta: flush_handlers
