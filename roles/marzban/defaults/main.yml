@@ -64,7 +64,7 @@ marzban_direct_domains:
 ### Host info configuration
 
 marzban_panel_host_info:
-  - remark: "VLESS-panel"
+  - remark: "VLESS-PANEL"
     address: "{{ marzban_domain }}"
     port: 443
 

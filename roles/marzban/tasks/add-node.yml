@@ -7,7 +7,13 @@
     headers:
       accept: "application/json"
       Content-Type: "application/x-www-form-urlencoded"
-    body: "grant_type=&username={{ marzban_panel_login }}&password={{ marzban_panel_password }}&scope=&client_id=&client_secret="
+    body:
+      grant_type: "password"
+      username: "{{ marzban_panel_login }}"
+      password: "{{ marzban_panel_password }}"
+      scope: ""
+      client_id: ""
+      client_secret: ""
     body_format: form-urlencoded
     return_content: true
   retries: 8
@@ -189,7 +195,7 @@
           {% set nodes_info = [] %}
           {% for node in new_node_names %}
           {% set _ = nodes_info.append({
-              "remark": "VLESS-" ~ node,
+              "remark": "VLESS-" ~ node | upper,
               "address": node ~ '.' ~ marzban_domain,
               "port": 443
             })
