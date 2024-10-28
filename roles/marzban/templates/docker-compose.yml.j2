@@ -21,6 +21,7 @@ services:
     volumes:
       - {{ marzban_system_dirs | json_query('[*].work_dir') | first }}:/var/lib/marzban
       - /etc/localtime:/etc/localtime:ro
+      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
 {% if marzban_mysql_instance is defined and marzban_mysql_instance %}
     depends_on:
       mariadb:
