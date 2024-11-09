@@ -71,7 +71,7 @@
 						<div id="toast">Скопировано!</div>
 				    </li>
 				    <li style="height: 45px;" class="list-group-item d-flex align-items-center">
-						<button style="padding: 0;" type="button" class="btn btn-link link-dark" onclick="copyToClipboard('{{ user.links | first }}'); showNotification('toast');">Скопировать конфиг</button>
+						<button style="padding: 0;" type="button" class="btn btn-link link-dark" onclick="copyToClipboard('{{ user.links | join(',') }}'); showNotification('toast');">Скопировать конфиг</button>
 						<div id="toast">Скопировано!</div>
 				    </li>
 				    <li class="list-group-item d-flex justify-content-between align-items-center">
