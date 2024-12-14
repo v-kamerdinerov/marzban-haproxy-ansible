@@ -15,6 +15,7 @@ OPT_SRC_DIR="/opt/marzban/*"
 
 # Backup directory
 BACKUP_DIR="/var/lib/marzban_backups"
+BACKUP_DAYS=7
 
 # Environment file
 ENV_FILE="/opt/marzban/.env"
@@ -80,8 +81,13 @@ backup_databases() {
 
 		# Install mysqldump if not installed
 		if ! command -v mysqldump &>/dev/null; then
-			log WARN "mysqldump not found, installing..."
-			apt-get update && apt-get install -y mysql-client || log ERROR "Failed to install mysql-client."
+			log WARN "mysqldump not found, attempting installation..."
+			DEBIAN_FRONTEND=noninteractive apt-get update -qq || log ERROR "Failed to run 'apt-get update'."
+			DEBIAN_FRONTEND=noninteractive apt-get install -qq -y --no-install-recommends mysql-client
+			if ! command -v mysqldump &>/dev/null; then
+				log ERROR "Failed to install mysql-client or mysqldump is unavailable after installation."
+				exit 1
+			fi
 		fi
 
 		# Dump databases
@@ -111,7 +117,7 @@ send_to_telegram() {
 	if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ]; then
 		TAR_FILE="$BACKUP_DIR/backup_$CURRENT_DATE.tar.gz"
 		log INFO "Creating tarball $TAR_FILE"
-		tar -czf "$TAR_FILE" -C "$BACKUP_DIR" "backup_$CURRENT_DATE" || log ERROR "Failed to create tarball."
+		tar --warning=no-file-changed -czf "$TAR_FILE" -C "$BACKUP_DIR" "backup_$CURRENT_DATE" || log ERROR "Failed to create tarball."
 
 		log INFO "Sending backup to Telegram chat ID $TELEGRAM_CHAT_ID"
 		curl -F chat_id="${TELEGRAM_CHAT_ID}" \
@@ -119,11 +125,21 @@ send_to_telegram() {
 			-F parse_mode="HTML" \
 			-F document=@"$TAR_FILE" \
 			https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument || log ERROR "Failed to send backup to Telegram."
+		rm -rf $TAR_FILE
 
 		log INFO "Backup sent to Telegram successfully."
 	else
 		log WARN "Telegram BOT token or chat ID not provided. Skipping upload."
 	fi
+}
+
+rotate() {
+	log INFO "Starting backup rotation process."
+	local deleted_files
+	deleted_files=$(find "$BACKUP_DIR" -type f -mtime +$BACKUP_DAYS -delete 2>&1)
+	log INFO "Deleted files: $deleted_files"
+	find "$BACKUP_DIR" -type d -empty -delete
+	log INFO "Cleanup complete."
 }
 
 # Main backup process
@@ -133,6 +149,7 @@ main() {
 	backup_databases
 	send_to_telegram
 	log INFO "Backup process completed."
+	rotate
 }
 
 # Run the main process
