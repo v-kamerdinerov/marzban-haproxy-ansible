@@ -18,6 +18,14 @@
   with_items:
     - "{{ change_sshd_port_configured_port }}"
 
+- name: "Common | {{ role | upper() }} | UFW | Deny outbound traffic to private networks"
+  community.general.ufw:
+    rule: deny
+    direction: out
+    to_ip: "{{ item }}"
+  with_items:
+    - "{{ common_closed_networks }}"
+
 - name: "Common | {{ role | upper() }} | UFW | Enable firewall service"
   community.general.ufw:
     state: enabled
