@@ -27,6 +27,7 @@ marzban_haproxy_dirs:
 
 marzban_panel_login: "admin"
 marzban_panel_password: "verystrongpass"
+marzban_custom_subscription_template: false
 
 ### XRAY configuration
 marzban_domain: "example.com"

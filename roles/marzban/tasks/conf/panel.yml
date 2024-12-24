@@ -90,6 +90,7 @@
     src: "index.html"
     dest: "{{ marzban_system_dirs | json_query('[*].templates_dir') | first }}/index.html"
     mode: "0644"
+  when: marzban_custom_subscription_template is defined and marzban_custom_subscription_template
 
 - name: "Marzban | Configure {{ role | upper() }} | Template ssl certificate"
   copy:
