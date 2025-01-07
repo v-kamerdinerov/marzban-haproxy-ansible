@@ -1,6 +1,7 @@
 global
-    log stdout format raw local0 info
-	daemon
+  log stdout format raw local0 info
+  maxconn 400000
+  daemon
 
 defaults
   mode tcp
@@ -8,16 +9,21 @@ defaults
   timeout client 30s
   timeout connect 4s
   timeout server 30s
-
+  option dontlognull
 
 frontend http_frontend
   bind *:80
   mode http
   http-response set-header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload;"
+  http-response set-header X-Content-Type-Options "nosniff"
+  http-response set-header X-XSS-Protection "1; mode=block"
+  http-response set-header Referrer-Policy "strict-origin-when-cross-origin"
+  http-response set-header Content-Security-Policy "default-src 'self';"
   redirect scheme https code 301 if !{ ssl_fc }
   timeout http-request 10s
   log global
   option httplog
+  option http-keep-alive
 
 frontend https_frontend
   bind *:443 alpn h2,http/1.1
@@ -28,7 +34,6 @@ frontend https_frontend
 {% endif %}
   use_backend reality if { req.ssl_sni -m end {{ marzban_sni }} }
   log global
-  option tcplog
 
 
 {% if 'panel' in role %}
