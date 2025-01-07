@@ -18,7 +18,7 @@ marzban_image: "gozargah/marzban"
 marzban_image_tag: "latest"
 
 marzban_haproxy_image: "haproxy"
-marzban_haproxy_image_tag: "2.4.25"
+marzban_haproxy_image_tag: "2.4.28"
 marzban_haproxy_dirs:
   - etc_dir: "/etc/haproxy"
 
