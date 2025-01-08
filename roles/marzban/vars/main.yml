@@ -29,3 +29,6 @@ marzban_warp_deb_package: "{{ marzban_warp_repo_url }}/pool/{{ ansible_distribut
 
 marzban_cli_script_url: "https://github.com/Gozargah/Marzban-scripts/raw/master/marzban.sh"
 marzban_cli_install_path: "/usr/local/bin/marzban"
+
+marzban_node_cli_script_url: "https://github.com/Gozargah/Marzban-scripts/raw/master/marzban-node.sh"
+marzban_node_cli_install_path: "/usr/local/bin/marzban-node"
