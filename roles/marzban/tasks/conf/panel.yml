@@ -168,8 +168,6 @@
   until: panel_host_info_change is not failed
   tags: bootstrap
 
-- name: "Marzban | Configure {{ role | upper() }} | Post-deploy"
-  include_tasks: ../post-deploy.yml
 
 - name: "Marzban | Configure {{ role | upper() }} | Backup"
   include_tasks: ../backup.yml

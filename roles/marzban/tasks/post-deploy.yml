@@ -1,19 +1,10 @@
 ---
 
-- name: "Marzban | Post-deploy | Save MySQL passwords to credentials"
-  copy:
-    dest: "{{ item.path }}"
-    content: "{{ lookup('vars', item.name) }}"
-    owner: root
-    group: root
-    mode: '0644'
-  loop:
-    - { name: 'marzban_mysql_user_password', path: "{{ marzban_system_dirs | json_query('[*].vault_dir') | first }}/vault_marzban_mysql_user_password" }
-    - { name: 'marzban_mysql_root_password', path: "{{ marzban_system_dirs | json_query('[*].vault_dir') | first }}/vault_marzban_mysql_root_password" }
-  when: marzban_mysql_instance is defined and marzban_mysql_instance
-
 - name: "Marzban | Post-deploy | Install marzban-cli"
   ansible.builtin.get_url:
-    url: "{{ marzban_cli_script_url }}"
-    dest: "{{ marzban_cli_install_path }}"
+    url: "{{ marzban_cli_script_url_value }}"
+    dest: "{{ marzban_cli_install_path_value }}"
     mode: '0755'
+  vars:
+    marzban_cli_script_url_value: "{{ marzban_cli_script_url if inventory_hostname in groups['marzban_main'] else marzban_node_cli_script_url }}"
+    marzban_cli_install_path_value: "{{ marzban_cli_install_path if inventory_hostname in groups['marzban_main'] else marzban_node_cli_install_path }}"

@@ -1,4 +1,7 @@
 ---
+- name: "Marzban | Prepare | Gather user facts"
+  setup:
+    gather_subset: user_dir
 
 - name: "Marzban | Prepare | Get group name"
   set_fact:
@@ -9,23 +12,23 @@
   block:
     - name: "Marzban | Prepare | Mysql | Check if marzban_mysql_user_password file exists"
       stat:
-        path: "{{ marzban_system_dirs | json_query('[*].vault_dir') | first }}/vault_marzban_mysql_user_password"
+        path: "{{ marzban_mysql_user_password_path }}"
       register: mysql_user_password_file
 
     - name: "Marzban | Prepare | Mysql | Check if marzban_mysql_root_password file exists"
       stat:
-        path: "{{ marzban_system_dirs | json_query('[*].vault_dir') | first }}/vault_marzban_mysql_root_password"
+        path: "{{ marzban_mysql_root_password_path }}"
       register: mysql_root_password_file
 
     - name: "Marzban | Prepare | Mysql | Read marzban_mysql_user_password from file"
       slurp:
-        src: "{{ marzban_system_dirs | json_query('[*].vault_dir') | first }}/vault_marzban_mysql_user_password"
+        src: "{{ marzban_mysql_user_password_path }}"
       register: mysql_user_password_content
       when: mysql_user_password_file.stat.exists
 
     - name: "Marzban | Prepare | Mysql | Read marzban_mysql_root_password from file"
       slurp:
-        src: "{{ marzban_system_dirs | json_query('[*].vault_dir') | first }}/vault_marzban_mysql_root_password"
+        src: "{{ marzban_mysql_root_password_path }}"
       register: mysql_root_password_content
       when: mysql_root_password_file.stat.exists
 
@@ -54,6 +57,20 @@
         - not mysql_root_password_file.stat.exists
         - marzban_mysql_root_password is not defined or marzban_mysql_root_password == ''
         - inventory_hostname == groups[marzban_main_group_name][0]  | default(omit)
+
+    - name: "Marzban | Prepare | Mysql  Save MySQL passwords to credentials"
+      copy:
+        dest: "{{ item.path }}"
+        content: "{{ lookup('vars', item.name) }}"
+        owner: root
+        group: root
+        mode: '0644'
+      loop:
+        - { name: 'marzban_mysql_user_password', path: "{{ marzban_mysql_user_password_path }}" }
+        - { name: 'marzban_mysql_root_password', path: "{{ marzban_mysql_root_password_path }}" }
+      when:
+        - not mysql_user_password_file.stat.exists
+        - not mysql_root_password_file.stat.exists
 
     - name: "Marzban | Prepare | Mysql | Set marzban_mysql_innodb_buffer_pool_size if not defined or empty"
       block:

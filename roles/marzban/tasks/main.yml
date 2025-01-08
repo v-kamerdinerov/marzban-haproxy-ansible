@@ -20,3 +20,6 @@
   include_tasks: add-node.yml
   when:
     - marzban_nodes_group_name in groups
+
+- name: "Marzban | Post-deploy"
+  include_tasks: post-deploy.yml
