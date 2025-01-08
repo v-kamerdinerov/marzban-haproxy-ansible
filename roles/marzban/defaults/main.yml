@@ -8,7 +8,7 @@ marzban_system_dirs:
   - templates_dir: "/var/lib/marzban/templates"
 
 marzban_node_dirs:
-  - base_dir: "/opt/marzban"
+  - base_dir: "/opt/marzban-node"
   - work_dir: "/var/lib/marzban-node"
 
 marzban_ssl_certfile: "{{ vault_ssl_certs.keys() | select('search', 'cert') | list | first }}"
@@ -93,6 +93,9 @@ marzban_mysql_db_name: "marzban"
 marzban_mysql_user_name: "marzban"
 marzban_mysql_user_password: ""
 marzban_mysql_root_password: ""
+
+marzban_mysql_user_password_path: "{{ ansible_user_dir }}/.vault_marzban_mysql_user_password"
+marzban_mysql_root_password_path: "{{ ansible_user_dir }}/.vault_marzban_mysql_root_password"
 
 # tuning
 marzban_mysql_innodb_open_files: "1024"
