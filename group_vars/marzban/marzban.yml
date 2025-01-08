@@ -43,6 +43,9 @@ marzban_backup_telegram_bot_token: ""
 # Telegram chat ID for backup notifications (auto-detected if empty; initiate chat with the bot first)
 marzban_backup_telegram_chat_id: ""
 
+# Use custom template for subscription page  for placing various clients regarding different operating systems and tutorials related to them
+marzban_custom_subscription_template: true
+
 # DNS servers list
 marzban_dns_servers:
   - "8.8.8.8"
