@@ -1,0 +1,112 @@
+---
+- name: Skip Let's Encrypt tasks if disabled
+  meta: end_play
+  when: not letsencrypt_enabled
+
+- name: Create marzban certificates directory
+  file:
+    path: "{{ marzban_system_dirs | json_query('[*].certs_dir') | first }}"
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+  when: is_main_node
+  become: true
+
+- name: Check if certificates exist
+  stat:
+    path: "{{ marzban_system_dirs | json_query('[*].certs_dir') | first }}/{{ letsencrypt_domain }}.cert"
+  register: cert_check
+  when: is_main_node
+  become: true
+
+- name: Generate SSL Certificates
+  when: is_main_node and not cert_check.stat.exists
+  block:
+    - name: Create letsencrypt hooks directory
+      file:
+        path: "/etc/letsencrypt/renewal-hooks/deploy"
+        state: directory
+        mode: '0750'
+      become: true
+
+    - name: Install required packages
+      apt:
+        name: "{{ certbot_packages }}"
+        state: present
+        update_cache: yes
+      become: true
+
+    - name: Create Cloudflare credentials file
+      template:
+        src: cloudflare.ini.j2
+        dest: /root/.cloudflare.ini
+        mode: '0600'
+      become: true
+
+    - name: Create certificate renewal deploy hook
+      template:
+        src: copy-certs.sh.j2
+        dest: /etc/letsencrypt/renewal-hooks/deploy/copy-certs.sh
+        mode: '0755'
+      become: true
+
+    - name: Generate initial wildcard certificate
+      command: >
+        certbot certonly --dns-cloudflare 
+        --dns-cloudflare-credentials /root/.cloudflare.ini
+        -d {{ letsencrypt_domain }}
+        -d *.{{ letsencrypt_domain }}
+        --email {{ letsencrypt_email }}
+        --agree-tos
+        --non-interactive
+        --expand
+        --deploy-hook "/etc/letsencrypt/renewal-hooks/deploy/copy-certs.sh"
+        {{ '--staging' if letsencrypt_staging else '' }}
+      args:
+        creates: "/etc/letsencrypt/live/{{ letsencrypt_domain }}/fullchain.pem"
+      become: true
+
+    - name: Initial copy of certificates
+      command: /etc/letsencrypt/renewal-hooks/deploy/copy-certs.sh
+      args:
+        creates: "{{ marzban_system_dirs | json_query('[*].certs_dir') | first }}/{{ letsencrypt_domain }}.cert"
+      become: true
+
+- name: Read certificate and key content from main node
+  slurp:
+    src: "{{ item }}"
+  loop:
+    - "{{ marzban_system_dirs | json_query('[*].certs_dir') | first }}/{{ letsencrypt_domain }}.cert"
+    - "{{ marzban_system_dirs | json_query('[*].certs_dir') | first }}/{{ letsencrypt_domain }}.key"
+  register: cert_contents
+  delegate_to: "{{ groups['marzban_main'][0] }}"
+  run_once: true
+  when: groups['marzban_main'] is defined and groups['marzban_main'] | length > 0
+  become: true
+
+- name: Set SSL certificates as facts on all hosts
+  vars:
+    cert_content: "{{ hostvars[groups['marzban_main'][0]]['cert_contents']['results'][0]['content'] | b64decode }}"
+    key_content: "{{ hostvars[groups['marzban_main'][0]]['cert_contents']['results'][1]['content'] | b64decode }}"
+    cert_name: "{{ letsencrypt_domain }}.cert"
+    key_name: "{{ letsencrypt_domain }}.key"
+  set_fact:
+    vault_ssl_certs:
+      "{{ letsencrypt_domain }}.cert": "{{ cert_content }}"
+      "{{ letsencrypt_domain }}.key": "{{ key_content }}"
+    marzban_ssl_certfile: "{{ letsencrypt_domain }}.cert"
+    marzban_ssl_keyfile: "{{ letsencrypt_domain }}.key"
+    #marzban_ssl_node_certificate: "{{ cert_content }}"
+  when: groups['marzban_main'] is defined and groups['marzban_main'] | length > 0
+
+- name: Debug variables
+  debug:
+    msg: |
+      Domain: {{ letsencrypt_domain }}
+      Certificate content length: {{ hostvars[groups['marzban_main'][0]]['cert_contents']['results'][0]['content'] | b64decode | length }}
+      Key content length: {{ hostvars[groups['marzban_main'][0]]['cert_contents']['results'][1]['content'] | b64decode | length }}
+      vault_ssl_certs: {{ vault_ssl_certs | default({}) }}
+      marzban_ssl_certfile: {{ marzban_ssl_certfile }}
+      marzban_ssl_keyfile: {{ marzban_ssl_keyfile }}
+    verbosity: 1

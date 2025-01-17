@@ -1,0 +1,28 @@
+---
+# This role depends on variables from the marzban role
+# See: ../marzban/defaults/main.yml
+
+# Enable/disable Let's Encrypt functionality
+letsencrypt_enabled: false
+
+# Cloudflare DNS configuration
+cloudflare_api_token: "{{ vault_cloudflare_api_token | default('') }}"
+
+# Domain configuration
+letsencrypt_domain: "{{ marzban_domain | default('') }}"
+letsencrypt_email: "{{ vault_acme_email | default('') }}"
+
+# Let's Encrypt staging environment (set to true for testing)
+letsencrypt_staging: false
+
+# Let's Encrypt ACME directory URL
+letsencrypt_acme_directory: "https://acme-v02.api.letsencrypt.org/directory"
+
+# Certbot installation
+certbot_packages:
+  - certbot
+  - python3-certbot-dns-cloudflare
+  - python3-cloudflare
+
+# Node configuration
+is_main_node: "{{ 'marzban_main' in group_names }}"

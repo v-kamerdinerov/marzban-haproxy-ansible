@@ -1,0 +1,12 @@
+---
+- name: reload haproxy
+  systemd:
+    name: haproxy
+    state: reloaded
+  become: true
+
+- name: restart haproxy
+  systemd:
+    name: haproxy
+    state: restarted
+  become: true
