@@ -3,11 +3,23 @@
   hosts: "marzban"
   gather_facts: false
   become: true
+  vars:
+    # Let's Encrypt configuration
+    letsencrypt_enabled: false
+    letsencrypt_domain: "{{ marzban_domain }}"
+    letsencrypt_email: "{{ vault_acme_email }}"
+    letsencrypt_staging: false  # Set to true for testing
+    # Cloudflare API token should be in vault
+    # vault_cloudflare_api_token: "your-cloudflare-api-token"
   tasks:
     - name: "Import common role"
       import_role:
         name: common
       tags: common
+    - name: "Import letsencrypt role"
+      import_role:
+        name: letsencrypt
+      tags: letsencrypt
     - name: "Import docker role"
       import_role:
         name: docker
