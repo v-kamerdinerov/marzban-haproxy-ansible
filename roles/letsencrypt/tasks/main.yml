@@ -53,7 +53,7 @@
 
     - name: Generate initial wildcard certificate
       command: >
-        certbot certonly --dns-cloudflare 
+        certbot certonly --dns-cloudflare
         --dns-cloudflare-credentials /root/.cloudflare.ini
         -d {{ letsencrypt_domain }}
         -d *.{{ letsencrypt_domain }}
