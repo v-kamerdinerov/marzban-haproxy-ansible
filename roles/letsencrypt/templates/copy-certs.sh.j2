@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Copy certificates to marzban certs directory
+CERTS_DIR="{{ marzban_system_dirs | json_query('[*].certs_dir') | first }}"
+cp /etc/letsencrypt/live/{{ letsencrypt_domain }}/fullchain.pem "$CERTS_DIR/{{ letsencrypt_domain }}.cert"
+cp /etc/letsencrypt/live/{{ letsencrypt_domain }}/privkey.pem "$CERTS_DIR/{{ letsencrypt_domain }}.key"
+chmod 644 "$CERTS_DIR"/*.{cert,key}
+
+# Restart marzban services
+cd {{ marzban_system_dirs | json_query('[*].base_dir') | first }} && docker compose restart

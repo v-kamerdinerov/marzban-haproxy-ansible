@@ -213,7 +213,7 @@
           Authorization: "Bearer {{ (token_data.content | from_json).access_token }}"
           Content-Type: "application/json"
         body:
-          VLESS TCP REALITY: "{{ marzban_panel_host_info + marzban_nodes_host_info }}"
+          VLESS TCP REALITY: "{{ marzban_nodes_host_info }}"
         body_format: json
         return_content: true
       retries: 8

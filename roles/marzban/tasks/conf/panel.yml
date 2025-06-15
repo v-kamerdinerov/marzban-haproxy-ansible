@@ -167,7 +167,7 @@
   register: panel_host_info_change
   until: panel_host_info_change is not failed
   tags: bootstrap
-
+  when: marzban_panel_host_info_config is true
 
 - name: "Marzban | Configure {{ role | upper() }} | Backup"
   include_tasks: ../backup.yml
