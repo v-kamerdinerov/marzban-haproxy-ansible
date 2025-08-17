@@ -20,6 +20,8 @@
     mode: "{{ item.mode }}"
   loop:
     - {src: docker-compose-node.yml.j2, dst: docker-compose.yml, mode: "0644"}
+    - {src: certbot-exec.sh.j2, dst: certbot-exec.sh, mode: "0755"}
+    - {src: certbot-creds.sh.j2, dst: certbot-creds.sh, mode: "0755"}
     - {src: env-node.j2, dst: .env, mode: "0644"}
   tags: config
 

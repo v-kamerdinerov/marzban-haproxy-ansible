@@ -112,6 +112,37 @@ common_open_ports:
   - "443"
 ```
 
+### Automatic certificate signing
+
+For proof of owning domain, there's two domains: DNS and HTTP [untested]
+For purposes of automatic cert signing we use certbot service. To activate this option, change in
+`group_vars/marzban/marzban.yml` lines under `Automatic Certificate Management` section:
+
+```yaml
+### Automatic Certificate Management ###
+# Enable automatic certificate generation and renewal (true/false)
+marzban_auto_cert: true
+marzban_cert_challenge_method: "dns" # ["http, only if we can proof"]
+
+# Email for Let's Encrypt registration
+marzban_cert_email: "<email for acme registration>"
+
+# Staging environment (true for testing, false for production)
+marzban_cert_staging: false
+
+# Certificate domains to obtain
+marzban_cert_domains:
+  - "{{ marzban_domain }}"
+  - "*.{{ marzban_domain }}"
+
+marzban_cert_dns_provider: "cloudns"
+marzban_cert_dns_credentials:
+  cloudns_auth_id: "<cloudns-auth-id>"
+  cloudns_auth_password: "<cloudns-auth-pwd>"
+marzban_cert_renewal_interval: "43200"  # 12 hours
+```
+
+
 ## I'm tired wait, go go go
 
 

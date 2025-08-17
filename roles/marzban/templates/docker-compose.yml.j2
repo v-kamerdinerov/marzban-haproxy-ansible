@@ -9,9 +9,46 @@ services:
     volumes:
       - {{ marzban_haproxy_dirs | json_query('[*].etc_dir') | first }}/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
       - {{ marzban_system_dirs | json_query('[*].work_dir') | first }}:/var/lib/marzban
+{% if marzban_auto_cert is defined and marzban_auto_cert %}
+      - certbot_webroot:/var/www/certbot:ro
+{% endif %}
       - /etc/localtime:/etc/localtime:ro
     depends_on:
       - marzban
+{% if marzban_auto_cert is defined and marzban_auto_cert %}
+      - certbot
+{% endif %}
+
+{% if marzban_auto_cert is defined and marzban_auto_cert %}
+  certbot:
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    volumes:
+      - ./certbot-exec.sh:/tmp/certbot-exec.sh
+      - certbot_conf:/etc/letsencrypt
+      - certbot_webroot:/var/www/certbot
+      - {{ marzban_system_dirs | json_query('[*].work_dir') | first }}/certs:/etc/letsencrypt/live/{{ marzban_domain }}:rw
+      - /etc/localtime:/etc/localtime:ro
+{% if marzban_cert_dns_provider is defined and marzban_cert_challenge_method == "dns" %}
+      - certbot_secrets:/etc/letsencrypt/secrets:ro
+{% endif %}
+    entrypoint: ["/tmp/certbot-exec.sh"]
+    env_file: .env
+
+{% if marzban_cert_dns_provider is defined and marzban_cert_challenge_method == "dns" %}
+    depends_on:
+      - certbot-dns-credentials
+
+  certbot-dns-credentials:
+    env_file: .env
+    image: alpine:latest
+    restart: "no"
+    volumes:
+      - certbot_secrets:/secrets
+      - ./certbot-creds.sh:/tmp/certbot-creds.sh
+    entrypoint: ["/tmp/certbot-creds.sh"]
+{% endif %}
+{% endif %}
 
   marzban:
     image: {{ marzban_image }}:{{ marzban_image_tag }}
@@ -49,8 +86,20 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+{% endif %}
 
 volumes:
+{% if marzban_mysql_instance is defined and marzban_mysql_instance %}
   mariadb_data:
     name: mariadb_data
+{% endif %}
+{% if marzban_auto_cert is defined and marzban_auto_cert %}
+  certbot_conf:
+    name: certbot_conf
+  certbot_webroot:
+    name: certbot_webroot
+{% if marzban_cert_dns_provider is defined and marzban_cert_challenge_method == "dns" %}
+  certbot_secrets:
+    name: certbot_secrets
+{% endif %}
 {% endif %}

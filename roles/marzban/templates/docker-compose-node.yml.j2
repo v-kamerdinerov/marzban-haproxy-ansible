@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   haproxy:
     image: {{ marzban_haproxy_image }}:{{ marzban_haproxy_image_tag }}
@@ -7,9 +9,46 @@ services:
     volumes:
       - {{ marzban_haproxy_dirs | json_query('[*].etc_dir') | first }}/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
       - {{ marzban_system_dirs | json_query('[*].work_dir') | first }}:/var/lib/marzban
+{% if marzban_auto_cert is defined and marzban_auto_cert %}
+      - certbot_webroot:/var/www/certbot:ro
+{% endif %}
       - /etc/localtime:/etc/localtime:ro
     depends_on:
       - marzban-node
+{% if marzban_auto_cert is defined and marzban_auto_cert and inventory_hostname + '.' + marzban_domain != marzban_panel_uri %}
+      - certbot
+{% endif %}
+
+{% if marzban_auto_cert is defined and marzban_auto_cert and inventory_hostname + '.' + marzban_domain != marzban_panel_uri %}
+  certbot:
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    volumes:
+      - ./certbot-exec.sh:/tmp/certbot-exec.sh
+      - certbot_conf:/etc/letsencrypt
+      - certbot_webroot:/var/www/certbot
+      - {{ marzban_system_dirs | json_query('[*].work_dir') | first }}/certs:/etc/letsencrypt/live/{{ marzban_domain }}:rw
+      - /etc/localtime:/etc/localtime:ro
+{% if marzban_cert_dns_provider is defined and marzban_cert_challenge_method == "dns" %}
+      - certbot_secrets:/etc/letsencrypt/secrets:ro
+{% endif %}
+    entrypoint: ["/tmp/certbot-exec.sh"]
+    env_file: .env
+
+{% if marzban_cert_dns_provider is defined and marzban_cert_challenge_method == "dns" %}
+    depends_on:
+      - certbot-dns-credentials
+
+  certbot-dns-credentials:
+    env_file: .env
+    image: alpine:latest
+    restart: "no"
+    volumes:
+      - certbot_secrets:/secrets
+      - ./certbot-creds.sh:/tmp/certbot-creds.sh
+    entrypoint: ["/tmp/certbot-creds.sh"]
+{% endif %}
+{% endif %}
 
   marzban-node:
     image: {{ marzban_node_image }}:{{ marzban_node_image_tag }}
@@ -22,3 +61,15 @@ services:
     ports:
       - {{ marzban_api_ports[0] }}:62050
       - {{ marzban_api_ports[1] }}:62051
+
+{% if marzban_auto_cert is defined and marzban_auto_cert %}
+volumes:
+  certbot_conf:
+    name: certbot_conf_{{ inventory_hostname }}
+  certbot_webroot:
+    name: certbot_webroot_{{ inventory_hostname }}
+{% if marzban_cert_dns_provider is defined and marzban_cert_challenge_method == "dns" %}
+  certbot_secrets:
+    name: certbot_secrets_{{ inventory_hostname }}
+{% endif %}
+{% endif %}
