@@ -1,18 +1,18 @@
 ---
 
 # Main domain for the Marzban panel/reality
-marzban_domain: example-domain.com
+marzban_domain: "your-domain.example"
 
 # Subdomain for Marzban control panel access (Full path: {{ panel_path }}.{{ marzban_domain }})
 marzban_panel_uri: "panel.{{ marzban_domain }}"
 
 # SNI for traffic masking
-marzban_sni: "awesome.sni"
+marzban_sni: "masking-domain.example"
 
 # Login credentials for panel access
 marzban_panel_login: "admin"
 # Password must not contain symbols like ^$
-marzban_panel_password: "panelpassword"
+marzban_panel_password: "ultradmin"
 
 # Port for VLESS Reality TCP connections
 marzban_vless_tcp_reality_port: "12000"
@@ -25,10 +25,10 @@ marzban_api_ports:
   - "62051"
 
 # Use Cloudflare WARP for outbound traffic (true/false)
-marzban_warp: false
+marzban_warp: true
 
 # Enable API documentation (available at /docs and /redoc)
-marzban_docs: false
+marzban_docs: true
 
 # Use MySQL(maria-db) instance instead of SQLite (true/false)
 marzban_mysql_instance: true
@@ -36,12 +36,12 @@ marzban_mysql_instance: true
 # Enable automatic backup (true/false)
 marzban_backup: true
 # Backup schedule (cron format)
-marzban_backup_cron: { minute: "0", hour: "2", day: "*", month: "*", weekday: "*" }
+marzban_backup_cron: { minute: "0", hour: "3", day: "1,10,20", month: "*", weekday: "*" }
 
 # Telegram bot token for backup notifications (leave empty if not needed)
-marzban_backup_telegram_bot_token: ""
+marzban_backup_telegram_bot_token: "token-bot-bkp"
 # Telegram chat ID for backup notifications (auto-detected if empty; initiate chat with the bot first)
-marzban_backup_telegram_chat_id: ""
+marzban_backup_telegram_chat_id: "your-tg-id"
 
 # Use custom template for subscription page  for placing various clients regarding different operating systems and tutorials related to them
 marzban_custom_subscription_template: true
@@ -62,6 +62,24 @@ marzban_direct_domains:
   - "domain:captive.apple.com"
   - "full:detectportal.firefox.com"
   - "domain:networkcheck.kde.org"
+  - "domain:gosuslugi.ru"
+  - "domain:vk.com"
+  - "domain:vk-portal.net"
+  - "domain:vkuseraudio.com"
+  - "domain:ozon.ru"
+  - "domain:userapi.com"
+  - "domain:mycdn.me"
+  - "domain:mradx.net"
+  - "domain:mail.ru"
+  - "domain:okcdn.ru"
+  - "domain:dzen.ru"
+  - "domain:dzeninfra.ru"
+  - "domain:consentmanager.net"
+  - "domain:yandex.net"
+  - "domain:yandex.ru"
+  - "domain:imgsmail.ru"
+  - "domain:yastatic.net"
+  - "domain:yadro.ru"
 
 # Cloudflare WARP traffic filtering settings
 marzban_warp_domains:
@@ -85,60 +103,48 @@ common_additional_packages:
   - "vnstat"
   - "git"
 
+### Automatic Certificate Management ###
+# Enable automatic certificate generation and renewal (true/false)
+marzban_auto_cert: true
+
+# Certificate challenge method: "http" or "dns"
+# http: Uses HTTP-01 challenge (for single domain)
+# dns: Uses DNS-01 challenge (supports wildcards, requires DNS provider API)
+# DNS provider settings (for DNS-01 challenge)
+marzban_cert_challenge_method: "dns" # ["http, only if we can proof"]
+
+# Email for Let's Encrypt registration
+marzban_cert_email: "<email for acme registration>"
+
+# Staging environment (true for testing, false for production)
+marzban_cert_staging: false
+
+# Certificate domains to obtain
+marzban_cert_domains:
+  - "{{ marzban_domain }}"
+  - "*.{{ marzban_domain }}"
+
+marzban_cert_dns_provider: "cloudns"
+marzban_cert_dns_credentials:
+  cloudns_auth_id: "<cloudns-auth-id>"
+  cloudns_auth_password: "<cloudns-auth-pwd>"
+# dns_cloudns_sub_auth_id
+
+# marzban_cert_dns_provider: [cloudflare, amazon, route53, digital_ocean]
+# > dns_cloudflare_api_token | [dns_cloudflare_email, dns_cloudflare_api_key]
+# > dns_digitalocean_token
+# > [dns_route53_access_key_id, dns_route53_secret_access_key]
+# Certificate renewal settings
+marzban_cert_renewal_interval: "43200"  # 12 hours
+
+
 ### SSL Configuration ###
 # Certificate and key names must be in the format: {{ some_cool_name }}.cert and {{ some_cool_name }}.key
 # Certificates will be used in marzban_ssl_certfile and marzban_ssl_keyfile
 # Certificates should cover both the domain {{ marzban_domain }} and its wildcard *.{{ marzban_domain }}
+# fallback option
 vault_ssl_certs:
-  example-domain.com.cert: |
-    -----BEGIN CERTIFICATE-----
-    MIIDvDCCAqSgAwIBAgIUNQJEwM4oJdv2Xq2V9tFRDtVUfXMwDQYJKoZIhvcNAQEL
-    BQAwbDELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcM
-    DVNhbiBGcmFuY2lzY28xEzARBgNVBAoMCk15IENvbXBhbnkxGzAZBgNVBAMMEmV4
-    YW1wbGUtZG9tYWluLmNvbTAeFw0yNDA3MjkxMDM5NDNaFw0yNTA3MjkxMDM5NDNa
-    MGwxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRYwFAYDVQQHDA1T
-    YW4gRnJhbmNpc2NvMRMwEQYDVQQKDApNeSBDb21wYW55MRswGQYDVQQDDBJleGFt
-    cGxlLWRvbWFpbi5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDO
-    95w59NWVA4sRIx3cpE3S/iQyxR+VPXflvH7ygsYZJDZA+5UO90KWwgyWMQ9WpOKH
-    LmsYRbL1SWaSCWbMzTt3W8xnitEhxF2OchDQfFjOo1JpgZK+t41caLO/2f50hHTJ
-    mWEx5N0dc1yJ/Q3AoZn8ErHAtgz6GZdutKYo4bCnkuXYFPWcXhyoE85Mbi6AGOEA
-    RBD2ID9DM52FpCauZyM4/hwLVEUmM+odiT/pAHM9n+QD51m6jZRBrorWrcMrVZhA
-    MM1c/wMLpw42nR60vjAPcDrU6497TARYeZGcpkRaqjr7tO/q0COlJb/4RhhHnMJA
-    wFZR4cMFpL4TeZfnEdTPAgMBAAGjVjBUMDMGA1UdEQQsMCqCEmV4YW1wbGUtZG9t
-    YWluLmNvbYIUKi5leGFtcGxlLWRvbWFpbi5jb20wHQYDVR0OBBYEFM1vY7s8LWgK
-    Vq3Gh8yuNGyldx+qMA0GCSqGSIb3DQEBCwUAA4IBAQBSJeB/u5eZkUH33V60xKk3
-    MuLtScx19IMdIQlKdJxFqKcUHNJZCr2Qel2JBzrnVJhkGmGGveuDuzDF6X8xlUoJ
-    EAnwj6fp8ejJ0rY8Qmlxp+MnzciHmfUi2jA7OP57I2LP+Ln5YC5O5TEBBz2wT37s
-    b96k+hE/OGadfoooTEIaVe7BXPRpigZ1qBVvMs/Cmp0lIPULCCajZMclFUVNuoEg
-    6tDXGyLXAf4QvZSdNeKFXFfTS2SjOWpzjn5v/U7v8xHk7nROkxWBR9KSRFNsRjCf
-    q45juslAHwAu0Z9+W4LaNsKwe0ixRyEzGPW0lhCPQScL3FvRfFiaZ18zKbrwURl8
-    -----END CERTIFICATE-----
-  example-domain.com.key: |
-    -----BEGIN PRIVATE KEY-----
-    MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDO95w59NWVA4sR
-    Ix3cpE3S/iQyxR+VPXflvH7ygsYZJDZA+5UO90KWwgyWMQ9WpOKHLmsYRbL1SWaS
-    CWbMzTt3W8xnitEhxF2OchDQfFjOo1JpgZK+t41caLO/2f50hHTJmWEx5N0dc1yJ
-    /Q3AoZn8ErHAtgz6GZdutKYo4bCnkuXYFPWcXhyoE85Mbi6AGOEARBD2ID9DM52F
-    pCauZyM4/hwLVEUmM+odiT/pAHM9n+QD51m6jZRBrorWrcMrVZhAMM1c/wMLpw42
-    nR60vjAPcDrU6497TARYeZGcpkRaqjr7tO/q0COlJb/4RhhHnMJAwFZR4cMFpL4T
-    eZfnEdTPAgMBAAECggEAOChSkR1ASMcl2FgNdb11Sm9f9hCrsax0mHcNgRL/2nmL
-    aRV6jA2GWW68yJH2Rf3GY4SyVWswFEM+3BhF9wMnBAt6CoxNk5p7AjgsHM3osOT6
-    6xrX7PzUFANq5n8pfockQ0FlcIrXfnK7ZMuvjBmtNQsDhTVAjyobf1PwE/6tFsKV
-    hwnTMerIo48PoPOoH0Uh/iIZrycVMfr46W44BMnUsNn1Ft+N6GNnQlY6zt6bnYHj
-    pDg1QTzyPDH8apOXuqo2SGn8FZoO+RVAS2CXtJWQjVd8UDi1PLDoY7DBi6WLI8oh
-    wKITsPJvVNQjm2lEanIyR9PqcfDnc2YRiaPEpLvdwQKBgQD1EkrWGUQaOZDoGy05
-    jTUkmj/j7UVggMAON7FuaLQ6i3LVamE0uI/DcFkIc6lsMYWgDbqhOM1Z9DPDXVzq
-    q/gUWeelYooRrv0TL7Ohfqt16mPrkiuVKeX5l5A507kWzpvONNoZrniQ7nUUQ/DX
-    t7L9YrpU4g7jsSNmVTil2NzODwKBgQDYMlMOYI7rh5Yqb/Hp3zpam9BAZNBbHrp9
-    xXaamgT5f0l4yZSit0I/bWJ4uqxTORVY13odbMBM1BhWJ0sgQj1vIZnykTnUv14+
-    enqfepD3GXc/1uaRPeHrgVfUhZ2p6S5poJ0lAuDAEKNKV6UhwispDp9DbHqRWyYX
-    77M9aYlNQQKBgENZ2p1KZk/6wBs51Mz7RL6hcauXOrjRyXZe0fFw7w8j4dRLHxnZ
-    GxFwH9fVyZsFZR7ehwrlzHHLTiqDzxRjXJNjPelS0nUXrU+HjYt1f3OxjfJgwn+E
-    +0ID6EwsJrLg5yrdlY73RwU1s5F1NoxiXNuMNX88fTEQLpViGGZj2hL7AoGBAJKv
-    wm600QO5YQe2IJsf3IXxxiCKxlusw7fmLIzFB68I0B7mFrU4RfinDPMBJT7qMjOv
-    L6mbSfZWyZRa4LwodWpbkApmwqg4l4cort5Z2NXvL1vfQV02cXzKq38EkW7hSZ5d
-    XYHpK/jk0QX15ZK8HXCj/SdQCPFquLPw7No0KvaBAoGBANVasKlGnbLVm0Ogqq69
-    HpwCZDg6kSPCAhxrNhzxQ2+upA03hcqocQQDaIAukehmJiychRmAzLEJ9dTHch10
-    kI0b1uYAryNT6JtiomUB0CRd3y3Ljx+Zvs/HV3YIjh/eara4EHm9cp7qzE52Rll0
-    WsxP7hG9NsXQ9gItY9bLoILa
-    -----END PRIVATE KEY-----
+  your-domain.example.cert: |
+    <fullchain.pem>
+  your-domain.example.key: |
+    <privkey.pem>

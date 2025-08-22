@@ -24,6 +24,7 @@ marzban_warp_packages:
 marzban_warp_pkg_version: "2025.2.600.0"
 
 marzban_warp_deb_install: true
+
 marzban_warp_deb_package: "{{ marzban_warp_repo_url }}/pool/{{ ansible_distribution_release }}/{{ marzban_warp_apt_release_channel }}/c/cloudflare-warp/cloudflare-warp_{{ marzban_warp_pkg_version }}_{{ marzban_warp_apt_arch }}.deb"
 
 

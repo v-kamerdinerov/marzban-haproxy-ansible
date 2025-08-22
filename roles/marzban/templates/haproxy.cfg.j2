@@ -17,6 +17,11 @@ defaults
 frontend http_frontend
   bind *:80
   mode http
+{% if marzban_auto_cert is defined and marzban_auto_cert and marzban_cert_challenge_method == "http" %}
+  # ACME challenge handling
+  acl is_acme_challenge path_beg /.well-known/acme-challenge/
+  use_backend acme_challenge if is_acme_challenge
+{% endif %}
   http-response set-header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload;"
   http-response set-header X-Content-Type-Options "nosniff"
   http-response set-header X-XSS-Protection "1; mode=block"
@@ -28,6 +33,15 @@ frontend http_frontend
   option httplog
   option http-keep-alive
 
+{% if marzban_auto_cert is defined and marzban_auto_cert and marzban_cert_challenge_method == "http" %}
+backend acme_challenge
+  mode http
+  server acme_server 127.0.0.1:8080 check
+  # Alternative: serve from file system
+  # http-request set-path /var/www/certbot%[path]
+  # errorfile 503 /var/www/certbot/.well-known/acme-challenge/
+{% endif %}
+
 frontend https_frontend
   bind *:443 alpn h2,http/1.1
   tcp-request inspect-delay 5s
@@ -35,9 +49,11 @@ frontend https_frontend
 {% if 'panel' in role %}
   use_backend panel if { req.ssl_sni -m end {{ marzban_panel_uri }} }
 {% endif %}
+{% if inventory_hostname is defined and inventory_hostname != 'main' %}
+  use_backend panel if { req.ssl_sni -m end {{ inventory_hostname }}.{{ marzban_domain }} }
+{% endif %}
   use_backend reality if { req.ssl_sni -m end {{ marzban_sni }} }
   log global
-
 
 {% if 'panel' in role %}
 backend panel

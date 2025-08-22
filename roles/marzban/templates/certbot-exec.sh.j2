@@ -1,0 +1,74 @@
+#!/bin/sh
+# Install DNS provider plugins if needed
+{% if marzban_cert_dns_provider == "cloudns" %}
+pip install certbot-dns-cloudns
+{% elif marzban_cert_dns_provider == "cloudflare" %}
+pip install certbot-dns-cloudflare
+{% elif marzban_cert_dns_provider == "route53" %}
+pip install certbot-dns-route53
+{% elif marzban_cert_dns_provider == "digitalocean" %}
+pip install certbot-dns-digitalocean
+{% endif %}
+
+while :; do
+  echo 'Starting certificate check...'
+  
+  # Create domain directories if they don't exist
+  mkdir -p /etc/letsencrypt/live/{{ marzban_domain }}
+  
+  # Check if certificates exist and are valid
+  if [ ! -f /etc/letsencrypt/live/{{ marzban_domain }}/fullchain.pem ] || 
+     [ ! -f /etc/letsencrypt/live/{{ marzban_domain }}/privkey.pem ] ||
+     ! openssl x509 -checkend 2592000 -noout -in /etc/letsencrypt/live/{{ marzban_domain }}/fullchain.pem >/dev/null 2>&1; then
+    
+    echo 'Certificates missing or expiring, obtaining new ones...'
+    
+{% if marzban_cert_challenge_method == "http" %}
+    certbot certonly --webroot -w /var/www/certbot \
+      $STAGING \
+      --email $EMAIL \
+      --agree-tos\
+      --no-eff-email \
+      --keep-until-expiring \
+      --cert-name {{ marzban_domain }} \
+{% for domain in marzban_cert_domains %}
+      -d {{ domain }} \
+{% endfor %}
+{% elif marzban_cert_challenge_method == "dns" %}
+    certbot certonly \
+      --authenticator dns-{{ marzban_cert_dns_provider }} \
+      --dns-{{ marzban_cert_dns_provider }}-credentials /etc/letsencrypt/secrets/{{ marzban_cert_dns_provider }}.ini \
+      $STAGING \
+      --email $EMAIL \
+      --keep-until-expiring \
+      --cert-name {{ marzban_domain }} \
+{% for domain in marzban_cert_domains %}
+      -d {{ domain }} \
+{% endfor %}
+      --agree-tos
+{% endif %}
+    
+    if [ $? -eq 0 ]; then
+      echo 'Certificate obtained successfully'
+      # Copy certificates to shared directory with proper naming
+      cp /etc/letsencrypt/live/{{ marzban_domain }}/fullchain.pem /etc/letsencrypt/live/{{ marzban_domain }}/{{ marzban_domain }}.cert
+      cp /etc/letsencrypt/live/{{ marzban_domain }}/privkey.pem /etc/letsencrypt/live/{{ marzban_domain }}/{{ marzban_domain }}.key
+      
+      # Set proper permissions
+      chmod 644 /etc/letsencrypt/live/{{ marzban_domain }}/{{ marzban_domain }}.cert
+      chmod 600 /etc/letsencrypt/live/{{ marzban_domain }}/{{ marzban_domain }}.key
+      
+      echo 'Certificates copied and permissions set'
+      
+      # Signal HAProxy to reload (optional - HAProxy can detect file changes)
+      pkill -HUP haproxy 2>/dev/null || true
+    else
+      echo 'Certificate generation failed'
+    fi
+  else
+    echo 'Certificates are valid, skipping renewal'
+  fi
+  
+  echo 'Sleeping for' $RENEWAL_INTERVAL 'seconds...'
+  sleep $RENEWAL_INTERVAL
+done

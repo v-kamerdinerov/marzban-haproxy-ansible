@@ -1,0 +1,38 @@
+#!/bin/sh
+
+echo 'Creating DNS credentials file...'
+mkdir -p /secrets
+
+{% if marzban_cert_dns_provider == "cloudflare" %}
+    {% if marzban_cert_dns_credentials.cloudflare_api_token is defined %}
+printf 'dns_cloudflare_api_token=%s\n' "$CLOUDFLARE_API_TOKEN" > /secrets/cloudflare.ini
+    {% else %}
+printf 'dns_cloudflare_email=%s\n' "$CLOUDFLARE_EMAIL" > /secrets/cloudflare.ini
+printf 'dns_cloudflare_api_key=%s\n' "$CLOUDFLARE_API_KEY" >> /secrets/cloudflare.ini
+    {% endif %}
+chmod 600 /secrets/cloudflare.ini
+echo 'Cloudflare credentials file created'
+{% elif marzban_cert_dns_provider == "cloudns" %}
+printf 'dns_cloudns_auth_id=%s\n' "$CLOUDNS_AUTH_ID" > /secrets/cloudns.ini
+    {% if marzban_cert_dns_credentials.cloudns_auth_password is defined %}
+printf 'dns_cloudns_auth_password=%s\n' "$CLOUDNS_AUTH_PASSWORD" >> /secrets/cloudns.ini
+{% endif %}
+    {% if marzban_cert_dns_credentials.cloudns_sub_auth_id is defined %}
+printf 'dns_cloudns_sub_auth_id=%s\n' "$CLOUDNS_SUB_AUTH_ID" >> /secrets/cloudns.ini
+{% endif %}
+
+chmod 600 /secrets/cloudns.ini
+echo 'ClouDNS credentials file created'
+{% elif marzban_cert_dns_provider == "route53" %}
+printf 'dns_route53_access_key_id=%s\n' "$AWS_ACCESS_KEY_ID" > /secrets/route53.ini
+printf 'dns_route53_secret_access_key=%s\n' "$AWS_SECRET_ACCESS_KEY" >> /secrets/route53.ini
+chmod 600 /secrets/route53.ini
+echo 'Route53 credentials file created'
+{% elif marzban_cert_dns_provider == "digitalocean" %}
+printf 'dns_digitalocean_token=%s\n' "$DIGITALOCEAN_TOKEN" > /secrets/digitalocean.ini
+chmod 600 /secrets/digitalocean.ini
+echo 'DigitalOcean credentials file created'
+{% endif %}
+
+echo 'DNS credentials file created successfully'
+cat /secrets/{{ marzban_cert_dns_provider }}.ini

@@ -18,6 +18,8 @@
     mode: "{{ item.mode }}"
   loop:
     - {src: docker-compose.yml.j2, dst: docker-compose.yml, mode: "0644"}
+    - {src: certbot-exec.sh.j2, dst: certbot-exec.sh, mode: "0755"}
+    - {src: certbot-creds.sh.j2, dst: certbot-creds.sh, mode: "0755"}
     - {src: env.j2, dst: .env, mode: "0644"}
 
 - name: "Marzban | Configure {{ role | upper() }} | Generate private key if not exist"
@@ -102,6 +104,65 @@
     content: "{{ item.value }}"
   no_log: true
   loop: "{{ vault_ssl_certs | dict2items }}"
+  when: 
+    - marzban_auto_cert is not defined or not marzban_auto_cert
+    - vault_ssl_certs is defined
+
+- name: "Marzban | Configure {{ role | upper() }} | Debug DNS credentials"
+  debug:
+    msg: |
+      DNS Credentials Debug Info:
+      - Provider: {{ marzban_cert_dns_provider }}
+      - Credentials defined: {{ marzban_cert_dns_credentials is defined }}
+      - Credentials content: {{ marzban_cert_dns_credentials | to_nice_json }}
+      - Expected environment variables will be:
+      {% for key, value in marzban_cert_dns_credentials.items() %}
+      - {{ key | upper }}={{ value if value else '(EMPTY VALUE!)' }}
+      {% endfor %}
+  when: 
+    - marzban_auto_cert is defined and marzban_auto_cert
+    - marzban_cert_challenge_method == "dns"
+    - marzban_cert_dns_credentials is defined
+
+- name: "Marzban | Configure {{ role | upper() }} | Validate certificate configuration"
+  assert:
+    that:
+      - marzban_cert_domains is defined and marzban_cert_domains | length > 0
+      - marzban_cert_challenge_method in ["http", "dns"]
+    fail_msg: |
+      Certificate configuration is incomplete. Please ensure:
+      - marzban_cert_domains contains at least one domain
+      - marzban_cert_challenge_method is either "http" or "dns"
+      Note: marzban_cert_email will use a default if not set, but it's recommended to set a real email
+    success_msg: "Certificate configuration is valid"
+  when: marzban_auto_cert is defined and marzban_auto_cert
+
+- name: "Marzban | Configure {{ role | upper() }} | Validate DNS provider configuration"
+  assert:
+    that:
+      - marzban_cert_dns_provider is defined and marzban_cert_dns_provider != ""
+      - marzban_cert_dns_credentials is defined and marzban_cert_dns_credentials | length > 0
+    fail_msg: |
+      DNS provider configuration is incomplete. Please ensure:
+      - marzban_cert_dns_provider is set (e.g., 'cloudns', 'cloudflare')
+      - marzban_cert_dns_credentials contains the required credentials
+    success_msg: "DNS provider configuration is valid"
+  when: 
+    - marzban_auto_cert is defined and marzban_auto_cert
+    - marzban_cert_challenge_method == "dns"
+
+- name: "Marzban | Configure {{ role | upper() }} | Show certificate configuration"
+  debug:
+    msg: |
+      Certificate Configuration:
+      - Domain: {{ marzban_domain }}
+      - Email: {{ marzban_cert_email if marzban_cert_email else 'default email will be used' }}
+      - Challenge Method: {{ marzban_cert_challenge_method | default('http') }}
+      - Staging: {{ marzban_cert_staging | default(false) }}
+      - Domains: {{ marzban_cert_domains | default([]) | join(', ') }}
+      - DNS Provider: {{ marzban_cert_dns_provider if marzban_cert_dns_provider else 'none' }}
+      - Renewal Interval: {{ marzban_cert_renewal_interval | default('43200') }} seconds
+  when: marzban_auto_cert is defined and marzban_auto_cert
 
 - name: "Marzban | Configure {{ role | upper() }} | Create and start services"
   community.docker.docker_compose_v2:
@@ -112,7 +173,7 @@
   ansible.builtin.debug:
     var: startup_output
 
-- name: "Marzban | Configure {{ role | upper() }} | Get ADMIN token"
+- name: "Marzban | Configure {{ role | upper() }} | Wait for marzban to be ready"
   uri:
     url: "https://{{ marzban_panel_uri }}/api/admin/token"
     method: POST
@@ -128,8 +189,9 @@
       client_secret: ""
     body_format: form-urlencoded
     return_content: true
-  retries: 8
-  delay: 5
+    validate_certs: false  # Allow self-signed certificates during initial setup
+  retries: 20
+  delay: 15
   register: token_data
   until: token_data is not failed
   tags: bootstrap
@@ -144,6 +206,7 @@
       Content-Type: "application/json"
     body_format: json
     return_content: true
+    validate_certs: false
   retries: 8
   delay: 5
   register: panel_hosts_info
@@ -162,12 +225,12 @@
       VLESS TCP REALITY: "{{ marzban_panel_host_info }}"
     body_format: json
     return_content: true
+    validate_certs: false
   retries: 8
   delay: 5
   register: panel_host_info_change
   until: panel_host_info_change is not failed
   tags: bootstrap
-
 
 - name: "Marzban | Configure {{ role | upper() }} | Backup"
   include_tasks: ../backup.yml

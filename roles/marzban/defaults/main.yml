@@ -11,8 +11,9 @@ marzban_node_dirs:
   - base_dir: "/opt/marzban-node"
   - work_dir: "/var/lib/marzban-node"
 
-marzban_ssl_certfile: "{{ vault_ssl_certs.keys() | select('search', 'cert') | list | first }}"
-marzban_ssl_keyfile: "{{ vault_ssl_certs.keys() | select('search', 'key') | list | first }}"
+# SSL Configuration - automatically determined based on marzban_auto_cert
+marzban_ssl_certfile: "{% if marzban_auto_cert is defined and marzban_auto_cert %}{{ marzban_domain }}.cert{% else %}{{ vault_ssl_certs.keys() | select('search', 'cert') | list | first }}{% endif %}"
+marzban_ssl_keyfile: "{% if marzban_auto_cert is defined and marzban_auto_cert %}{{ marzban_domain }}.key{% else %}{{ vault_ssl_certs.keys() | select('search', 'key') | list | first }}{% endif %}"
 marzban_ssl_ca_type: "public"
 
 marzban_image: "gozargah/marzban"
@@ -72,6 +73,15 @@ marzban_panel_host_info:
     address: "{{ marzban_domain }}"
     port: 443
 
+### Automatic Certificate Management ###
+marzban_auto_cert: false
+marzban_cert_challenge_method: "http"
+marzban_cert_email: ""
+marzban_cert_staging: false
+marzban_cert_domains: []
+marzban_cert_dns_provider: ""
+marzban_cert_dns_credentials: {}
+marzban_cert_renewal_interval: "43200"  # 12 hours
 
 ### WARP configuration
 marzban_warp: false
@@ -118,7 +128,6 @@ marzban_nodes_host_info: ""
 
 marzban_node_image: "gozargah/marzban-node"
 marzban_node_image_tag: "latest"
-
 
 ### Logrotate
 marzban_rsyslog_logrotate:
