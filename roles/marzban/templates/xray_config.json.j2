@@ -1,8 +1,8 @@
 {
     "log": {
         "loglevel": "{{ marzban_log_level }}",
-        "access": "/var/lib/marzban/access.log",
-        "error": "/var/lib/marzban/error.log",
+        "access": "{{ marzban_access_logs_file }}",
+        "error": "{{ marzban_errors_logs_file }}",
         "dnsLog": true
     },
   "dns": {

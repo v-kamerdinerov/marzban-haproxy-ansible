@@ -8,3 +8,12 @@
   vars:
     marzban_cli_script_url_value: "{{ marzban_cli_script_url if inventory_hostname in groups['marzban_main'] else marzban_node_cli_script_url }}"
     marzban_cli_install_path_value: "{{ marzban_cli_install_path if inventory_hostname in groups['marzban_main'] else marzban_node_cli_install_path }}"
+
+- name: "Marzban | Post-deploy | Add logrotate"
+  template:
+    src: "logrotate/entry.j2"
+    dest: "/etc/logrotate.d/{{ item.name }}"
+    mode: 0644
+  loop: "{{ marzban_rsyslog_logrotate }}"
+  loop_control:
+    label: "{{ item.name }}"
